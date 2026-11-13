@@ -1,0 +1,99 @@
+# Agent guidelines
+
+GreenQuote: solar financing pre-qualification. A signed-in user requests a
+quote, sees the price, risk band and three instalment offers, and lists their
+quotes; admins see every quote. TypeScript monorepo: pnpm + Turborepo.
+
+## Working style
+
+- Surgical changes: every changed line traces to the request. Match existing
+  style; remove only what your change orphaned.
+- No speculative features or abstractions. Minimum code that solves the problem.
+- Define verifiable success criteria (usually a failing test first) and loop
+  until they pass. See `tdd`.
+- The author must be able to explain every line without AI. Prefer the
+  conventional, boring solution over a clever one.
+- Follow-up work goes in the issue tracker (`docs/agents/issue-tracker.md`) or
+  the README's "What I'd do next", never as `TODO` comments.
+
+## Layout
+
+- **apps/web**: Next.js (App Router). UI only. Calls the API; holds no
+  business rules.
+- **apps/api**: NestJS. Thin facade: controllers, guards, DI wiring, HTTP error
+  mapping. All business logic lives in `@greenquote/domain`.
+- **packages/domain**: framework-free business logic: pure calculations,
+  services, Zod schemas shared by web and api, typed domain errors.
+- **packages/db**: Drizzle schema, migrations, seed. The TypeScript schema is the
+  source of truth.
+- **packages/config**: shared ESLint and tsconfig presets.
+- **docs/adr/**: decisions that are hard to reverse. **GLOSSARY.md**: every
+  domain word and what it means; read it before naming anything.
+
+## Commands
+
+```bash
+pnpm install
+docker compose up -d db   # Postgres
+pnpm db:migrate && pnpm db:seed
+pnpm dev                  # all apps via turbo
+pnpm lint                 # eslint --max-warnings=0 everywhere
+pnpm format               # prettier
+pnpm types                # tsc --noEmit everywhere
+pnpm test                 # unit + integration
+pnpm test:e2e             # Playwright, separate from pnpm test
+```
+
+Update this list when a script is added or renamed.
+
+## Git
+
+- Conventional Commits, enforced by commitlint: `<type>(<scope>): <description>`
+  in imperative mood. Scope is the package or area (`feat(api): add quote
+  endpoint`).
+- Small commits that each build and pass tests: reviewers read the history.
+- Let the pre-commit hook run; never `--no-verify`.
+
+## Rules that always apply
+
+- Name things with the words in `GLOSSARY.md`. A missing word is a gap to fill
+  there, never a synonym to coin.
+- Authorisation is enforced server-side, in the domain service, never only by
+  hiding UI.
+- Validate every input at the trust boundary with a Zod schema from
+  `@greenquote/domain`. The same schema validates the web form.
+- Money is never a float in the database. See `managing-database-schema`.
+- Soft-deleted rows are filtered: `WHERE deleted_at IS NULL`.
+- Change the TypeScript schema and generate a migration; never hand-edit a
+  committed migration or snapshot.
+- Secrets live in `.env` (gitignored). `.env.example` lists every variable with
+  a dummy value. Config is validated with Zod at startup.
+- Review rules live in `CODING_STANDARDS.md`.
+
+## Load before you start
+
+- `monorepo-guidelines`: before adding a package, dependency or lint rule.
+- `developing-domain-package`: before writing any business rule, and when
+  unsure whether code belongs in the domain or an app.
+- `developing-api-app`: for any work in `apps/api`.
+- `developing-nextjs-apps`: for any work in `apps/web`.
+- `managing-database-schema`: before any schema change, migration or seed.
+- `developing-typescript`: for any TypeScript.
+- `serialising-concurrent-writes`: before a read whose answer decides a write
+  (check-then-insert, find-or-create).
+- `engineering-scale-readiness`: when a query or endpoint returns a list.
+- Not sure which skill fits: `which-skill`.
+
+## Agent skills
+
+### Issue tracker
+
+Local markdown under `.scratch/`. See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+The five default roles. See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Single-context. See `docs/agents/domain.md`.

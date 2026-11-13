@@ -88,7 +88,7 @@ Update this list when a script is added or renamed.
 
 ### Issue tracker
 
-Local markdown under `.scratch/`. See `docs/agents/issue-tracker.md`.
+GitHub Issues in arne-be/GreenQuote via `gh`; external PRs are not a triage surface. See `docs/agents/issue-tracker.md`.
 
 ### Triage labels
 

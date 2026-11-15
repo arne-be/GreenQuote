@@ -16,6 +16,21 @@ quotes; admins see every quote. TypeScript monorepo: pnpm + Turborepo.
 - Follow-up work goes in the issue tracker (`docs/agents/issue-tracker.md`) or
   the README's "What I'd do next", never as `TODO` comments.
 
+## Workflow
+
+Idea → plan → build → review → ship. The full flow, and when to branch off it,
+is in `.claude/skills/ask-matt/SKILL.md`.
+
+- **Plan**, while the idea is still foggy: `grill-with-docs`. Multi-session
+  work becomes a spec and tickets (GitHub issues) via `to-spec` and
+  `to-tickets`. A clear ticket (from `to-tickets`, `triage`, or a small
+  well-defined change) starts at Build.
+- **Build**: `implement` per ticket (test-first with `tdd`, closed by
+  `code-review`), or `implement-spec` for a whole spec.
+- **Ship**: one branch per change off `main`, a PR whose body follows `pr`,
+  then a squash merge (`gh pr merge --squash`). The PR title becomes the
+  squash commit, so it is a Conventional Commit. GitHub deletes the branch.
+
 ## Layout
 
 - **apps/web**: Next.js (App Router). UI only. Calls the API; holds no
@@ -51,7 +66,8 @@ Update this list when a script is added or renamed.
 - Conventional Commits, enforced by commitlint: `<type>(<scope>): <description>`
   in imperative mood. Scope is the package or area (`feat(api): add quote
   endpoint`).
-- Small commits that each build and pass tests: reviewers read the history.
+- Small commits that each build and pass tests: reviewers read the PR's
+  history.
 - Let the pre-commit hook run; never `--no-verify`.
 
 ## Rules that always apply

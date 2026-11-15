@@ -1,3 +1,4 @@
+import type { QuoteInputs, QuoteResult, RiskBand } from "./pricing.types.js";
 import { PRICING_RULES, PRICING_RULES_VERSION } from "./pricing-rules.js";
 
 export function calculateQuoteResult({
@@ -40,30 +41,6 @@ export function calculateMonthlyPaymentCents(
   const r = apr / 12;
   const n = termYears * 12;
   return Math.round((principalCents * r) / (1 - (1 + r) ** -n));
-}
-
-export type RiskBand = keyof typeof PRICING_RULES.aprByRiskBand;
-
-export interface QuoteInputs {
-  systemSizeKw: number;
-  monthlyConsumptionKwh: number;
-  downPaymentCents: number;
-}
-
-export interface Offer {
-  termYears: number;
-  apr: number;
-  principalCents: number;
-  monthlyPaymentCents: number;
-}
-
-export interface QuoteResult {
-  pricingRulesVersion: string;
-  systemPriceCents: number;
-  principalCents: number;
-  riskBand: RiskBand;
-  apr: number;
-  offers: Offer[];
 }
 
 function toRiskBand(

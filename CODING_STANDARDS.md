@@ -72,3 +72,10 @@ commented-out code, no `TODO` without an issue reference.
 
 Identifiers, UI copy, API fields and test names use the terms in
 `GLOSSARY.md`. A synonym for a defined term is a finding.
+
+## 13. Every line earns its place
+
+The diff is the smallest change that fully does what the issue asks. Flag an
+option, parameter or config nobody asked for; a wrapper or abstraction with one
+caller; code that re-implements a helper, component or dependency the repo
+already has; and anything built "for later".

@@ -1,0 +1,27 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`pricing rules > only change together with a version bump 1`] = `
+{
+  "PRICING_RULES": {
+    "aprByRiskBand": {
+      "A": 0.069,
+      "B": 0.089,
+      "C": 0.119,
+    },
+    "pricePerKwCents": 120000,
+    "riskBandA": {
+      "maxSystemSizeKw": 6,
+      "minMonthlyConsumptionKwh": 400,
+    },
+    "riskBandB": {
+      "minMonthlyConsumptionKwh": 250,
+    },
+    "termsYears": [
+      5,
+      10,
+      15,
+    ],
+  },
+  "PRICING_RULES_VERSION": "2026-11-v1",
+}
+`;

@@ -61,7 +61,7 @@ validated at build and start. Every variable is in `.env.example`.
 - Tailwind, mobile first. shadcn/ui and Radix components; `cn()` to merge
   classes. Don't rebuild a component shadcn has (see `shadcn`).
 - Theme tokens (`bg-primary`, `text-muted-foreground`), never hard-coded
-  colours.
+  colours. The theme, type and component look come from `DESIGN.md`.
 - Format money, numbers and dates with `Intl` in one formatting module.
 
 ## Accessibility

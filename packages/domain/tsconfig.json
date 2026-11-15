@@ -1,0 +1,4 @@
+{
+  "extends": "@greenquote/config/tsconfig.base.json",
+  "include": ["src"]
+}

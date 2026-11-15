@@ -1,4 +1,15 @@
 {
   "name": "@greenquote/config",
-  "private": true
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./eslint": "./eslint.config.mjs",
+    "./tsconfig.base.json": "./tsconfig.base.json"
+  },
+  "dependencies": {
+    "@eslint/js": "catalog:",
+    "eslint-config-prettier": "catalog:",
+    "eslint-plugin-simple-import-sort": "catalog:",
+    "typescript-eslint": "catalog:"
+  }
 }

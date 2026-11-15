@@ -36,6 +36,7 @@ describe("calculateQuoteResult", () => {
       const result = calculateQuoteResult({
         systemSizeKw,
         monthlyConsumptionKwh,
+        downPaymentCents: 0,
       });
 
       expect(result.riskBand).toBe(riskBand);
@@ -58,6 +59,7 @@ describe("calculateQuoteResult", () => {
     const result = calculateQuoteResult({
       systemSizeKw: 6.5,
       monthlyConsumptionKwh: 400,
+      downPaymentCents: 0,
     });
 
     expect(result.pricingRulesVersion).toBe(PRICING_RULES_VERSION);

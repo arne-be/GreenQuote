@@ -3,7 +3,7 @@ import { PRICING_RULES, PRICING_RULES_VERSION } from "./pricing-rules.js";
 export function calculateQuoteResult({
   systemSizeKw,
   monthlyConsumptionKwh,
-  downPaymentCents = 0,
+  downPaymentCents,
 }: QuoteInputs): QuoteResult {
   const systemPriceCents = Math.round(
     systemSizeKw * PRICING_RULES.pricePerKwCents,
@@ -30,12 +30,24 @@ export function calculateQuoteResult({
   };
 }
 
+// Annuity in float, rounded to cents once at the end.
+export function calculateMonthlyPaymentCents(
+  principalCents: number,
+  apr: number,
+  termYears: number,
+): number {
+  if (principalCents === 0) return 0;
+  const r = apr / 12;
+  const n = termYears * 12;
+  return Math.round((principalCents * r) / (1 - (1 + r) ** -n));
+}
+
 export type RiskBand = keyof typeof PRICING_RULES.aprByRiskBand;
 
 export interface QuoteInputs {
   systemSizeKw: number;
   monthlyConsumptionKwh: number;
-  downPaymentCents?: number;
+  downPaymentCents: number;
 }
 
 export interface Offer {
@@ -67,16 +79,4 @@ function toRiskBand(
   }
   if (monthlyConsumptionKwh >= riskBandB.minMonthlyConsumptionKwh) return "B";
   return "C";
-}
-
-// Annuity in float; the only rounding to cents happens here.
-export function calculateMonthlyPaymentCents(
-  principalCents: number,
-  apr: number,
-  termYears: number,
-): number {
-  if (principalCents === 0) return 0;
-  const r = apr / 12;
-  const n = termYears * 12;
-  return Math.round((principalCents * r) / (1 - (1 + r) ** -n));
 }

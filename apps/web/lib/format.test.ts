@@ -7,11 +7,11 @@ const nbsp = " ";
 
 describe("formatMoney", () => {
   it("drops cents on whole euros", () => {
-    expect(formatMoney(7800)).toBe(`7.800${nbsp}€`);
+    expect(formatMoney(780_000)).toBe(`7.800${nbsp}€`);
   });
 
   it("shows cents otherwise", () => {
-    expect(formatMoney(123.5)).toBe(`123,50${nbsp}€`);
+    expect(formatMoney(12_350)).toBe(`123,50${nbsp}€`);
   });
 });
 

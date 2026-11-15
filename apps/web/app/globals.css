@@ -4,6 +4,7 @@
 
 @theme inline {
   --font-sans: var(--font-dm-sans);
+  /* shadcn inputs use rounded-md (8px), dialogs rounded-lg (12px). */
   --radius-md: 0.5rem;
   --radius-lg: var(--radius);
   --color-background: var(--background);

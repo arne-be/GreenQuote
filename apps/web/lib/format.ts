@@ -1,4 +1,4 @@
-// German number and date format from DESIGN.md, shared by every page.
+// German number and date format from DESIGN.md.
 
 const money = new Intl.NumberFormat("de-DE", {
   style: "currency",
@@ -20,7 +20,8 @@ const date = new Intl.DateTimeFormat("de-DE", {
   timeZone: "Europe/Berlin",
 });
 
-export const formatMoney = (euros: number) => money.format(euros);
+/** Money arrives in integer cents, as the domain stores it. */
+export const formatMoney = (cents: number) => money.format(cents / 100);
 
 /** `fraction` as stored for an APR: 0.069 is 6,9 %. */
 export const formatPercent = (fraction: number) => percent.format(fraction);

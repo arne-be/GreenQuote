@@ -21,8 +21,10 @@ quotes; admins see every quote. TypeScript monorepo: pnpm + Turborepo.
 Idea → plan → build → review → ship. The full flow, and when to branch off it,
 is in `.claude/skills/ask-matt/SKILL.md`.
 
-- **Plan**: `grill-with-docs`. Multi-session work becomes a spec and tickets
-  (GitHub issues) via `to-spec` and `to-tickets`.
+- **Plan**, while the idea is still foggy: `grill-with-docs`. Multi-session
+  work becomes a spec and tickets (GitHub issues) via `to-spec` and
+  `to-tickets`. A clear ticket (from `to-tickets`, `triage`, or a small
+  well-defined change) starts at Build.
 - **Build**: `implement` per ticket (test-first with `tdd`, closed by
   `code-review`), or `implement-spec` for a whole spec.
 - **Ship**: one branch per change off `main`, a PR whose body follows `pr`,

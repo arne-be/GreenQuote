@@ -32,6 +32,12 @@ _Avoid_: Cost, total
 The amount financed: system price minus down payment.
 _Avoid_: Loan amount, financed amount
 
+**Pricing rules**:
+The values that turn a quote's inputs into its result: the price per kW, the
+risk band thresholds, the APR for each risk band and the terms offered. Each
+version has its own identifier.
+_Avoid_: Pricing config, tariff, rate card
+
 ### Result
 
 **Risk band**:
@@ -59,7 +65,12 @@ _Avoid_: Instalment, rate
 
 **User**:
 Someone who registered with an email and password.
-_Avoid_: Customer, account, applicant
+_Avoid_: Customer, account
+
+**Applicant**:
+The person a quote is for, named by the full name and email on the quote.
+Often the user who requested it, but not necessarily.
+_Avoid_: Customer, homeowner, client
 
 **Admin**:
 A user who may see every quote.

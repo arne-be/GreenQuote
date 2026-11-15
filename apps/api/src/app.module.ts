@@ -1,4 +1,5 @@
 import { randomUUID } from "node:crypto";
+import { join } from "node:path";
 
 import { Module } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
@@ -14,7 +15,7 @@ import { HealthController } from "./health/health.controller.js";
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: "../../.env",
+      envFilePath: join(import.meta.dirname, "../../../.env"),
       validate: validateEnv,
     }),
     LoggerModule.forRoot({

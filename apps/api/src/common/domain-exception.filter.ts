@@ -22,18 +22,17 @@ const statusByError = [
 @Catch()
 export class DomainExceptionFilter extends BaseExceptionFilter {
   override catch(exception: unknown, host: ArgumentsHost) {
-    const status =
-      exception instanceof DomainError
-        ? statusByError.find(([type]) => exception instanceof type)?.[1]
-        : undefined;
-    if (exception instanceof DomainError && status !== undefined) {
-      host
-        .switchToHttp()
-        .getResponse<Response>()
-        .status(status)
-        .json({ statusCode: status, message: exception.message });
+    const status = statusByError.find(
+      ([type]) => exception instanceof type,
+    )?.[1];
+    if (status === undefined || !(exception instanceof DomainError)) {
+      super.catch(exception, host);
       return;
     }
-    super.catch(exception, host);
+    host
+      .switchToHttp()
+      .getResponse<Response>()
+      .status(status)
+      .json({ statusCode: status, message: exception.message });
   }
 }

@@ -30,9 +30,37 @@ open <http://localhost:3000> and sign in as the seeded admin:
 - email: `admin@test.com`
 - password: the value of `SEED_ADMIN_PASSWORD` in `.env`
 
-You can also register a new user on `/register`. The API is not published on
-its own port; the web app forwards `/api/*` to it, so the Swagger UI is at
-<http://localhost:3000/api/docs>.
+Demo users: added by [#30](https://github.com/arne-be/GreenQuote/issues/30)
+(demo seed), not on `main` yet. Until then, register your own user on
+`/register`.
+
+The API is not published on its own port; the web app forwards `/api/*` to it,
+so the Swagger UI is at <http://localhost:3000/api/docs>.
+
+## Request a quote
+
+1. Sign in, or register on `/register`. You land on `/quotes`.
+2. Choose **Request a quote**. The applicant's name and email start as your
+   own; change them when the quote is for someone else. Fill in the address,
+   the monthly consumption in kWh and the system size in kW. The down payment
+   is optional.
+3. Submit. The quote page shows the system price, the risk band, the APR and
+   one offer per term with its monthly payment.
+
+How the result is computed, from
+[pricing-rules.ts](packages/domain/src/pricing/pricing-rules.ts):
+
+- System price: 1,200 € per kW.
+- Risk band A: at least 400 kWh a month and at most 6 kW. Band B: at least
+  250 kWh a month. Anything else is band C.
+- APR: 6.9 % for A, 8.9 % for B, 11.9 % for C.
+- Offers: 5, 10 and 15 years, each a fixed monthly payment on the principal
+  (system price minus down payment).
+
+`/quotes` lists your own quotes, newest first, 20 per page. Admins also get
+**All quotes** (`/admin/quotes`), which lists every user's quotes and searches
+by user or applicant name and email. A user who opens `/admin/quotes` is sent
+back to `/quotes`; the API scopes the list by role either way.
 
 The API image runs with `NODE_ENV=production`, which marks the session cookie
 `Secure`. Browsers accept that cookie on `http://localhost`, but not on plain
@@ -146,7 +174,7 @@ The endpoints, authentication and error responses are described in
   needs a legal basis and a processor agreement, because the addresses go to
   Google.
 - Email verification.
-- A `pg_trgm` index for the `q` search.
+- A `pg_trgm` index for the `q` search ([#34](https://github.com/arne-be/GreenQuote/issues/34)).
 
 ## CI/CD
 

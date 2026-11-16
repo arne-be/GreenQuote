@@ -39,14 +39,15 @@ Every error body has `statusCode` and `message`:
 
 | Status | When                                                                      |
 | ------ | ------------------------------------------------------------------------- |
-| 400    | The body fails its Zod schema; the body also has `errors`, the Zod issues |
+| 400    | The body or query fails its Zod schema, or a path id is not a UUID        |
 | 401    | No valid session, or wrong email or password                              |
-| 403    | Signed in, but not allowed to act on this resource                        |
-| 404    | The resource does not exist                                               |
+| 403    | Mapped from `ForbiddenError`; no endpoint returns it today                |
+| 404    | The resource does not exist, or the caller may not see it                 |
 | 409    | The resource conflicts with an existing one (an email already registered) |
 | 500    | Anything unexpected; the message is always `Internal server error`        |
 
-A schema failure looks like this:
+A schema failure adds `errors`, the Zod issues, each with the `path` of the
+field it is about:
 
 ```json
 {
@@ -61,6 +62,11 @@ A schema failure looks like this:
   ]
 }
 ```
+
+A rule the domain checks itself, such as a down payment above the system
+price, uses the same `errors` shape. A path id that is not a UUID gets Nest's
+own body instead: `{ "statusCode": 400, "message": "Validation failed (uuid is
+expected)", "error": "Bad Request" }`.
 
 The domain throws typed errors (`ValidationError`, `UnauthorisedError`,
 `ForbiddenError`, `NotFoundError`, `ConflictError`) and
@@ -95,9 +101,122 @@ clear it.
 
 ### Quotes
 
-> **Not yet documented.** The quote endpoints are being built in [#9](https://github.com/arne-be/GreenQuote/issues/9) (request a
-> quote) and [#10](https://github.com/arne-be/GreenQuote/issues/10) (quote lists). This section will list `POST /api/quotes`,
-> `GET /api/quotes` and `GET /api/quotes/:id` once they are on `main`.
->
-> `GET /api/quotes` will be scoped by role: a user gets their own quotes and an
-> admin gets every quote ([ADR 0003](adr/0003-role-scoped-quote-list.md)).
+| Method | Path              | Auth    | Body or query        | Responses                        |
+| ------ | ----------------- | ------- | -------------------- | -------------------------------- |
+| POST   | `/api/quotes`     | session | quote input          | `201` quote, `400`, `401`        |
+| GET    | `/api/quotes/:id` | session | none                 | `200` quote, `400`, `401`, `404` |
+| GET    | `/api/quotes`     | session | `?q=&limit=&offset=` | `200` quote list, `400`, `401`   |
+
+Money is in euros with at most two decimals (stored as integer cents), and the
+APR is a fraction (`0.069` is 6.9 %).
+
+#### Request a quote
+
+`POST /api/quotes` prices the inputs with the current pricing rules, stores the
+quote with its result and offers, and returns it. The signed-in user owns the
+quote; the applicant can be someone else.
+
+```json
+{
+  "fullName": "Ada Lovelace",
+  "email": "ada@test.com",
+  "address": "12 St James Square, London",
+  "monthlyConsumptionKwh": 450,
+  "systemSizeKw": 5,
+  "downPayment": 1000
+}
+```
+
+| Field                   | Rule                                                              |
+| ----------------------- | ----------------------------------------------------------------- |
+| `fullName`              | 1 to 200 characters                                               |
+| `email`                 | a valid email; trimmed and lowercased                             |
+| `address`               | 5 to 300 characters, free text                                    |
+| `monthlyConsumptionKwh` | whole kWh, above 0, at most 1,000,000                             |
+| `systemSizeKw`          | above 0, at most 10,000, at most 2 decimals                       |
+| `downPayment`           | optional; 0 or more, at most 2 decimals, at most the system price |
+
+Numbers may also be sent as strings (the web form does). The upper bounds keep
+values inside their database columns; they are not eligibility rules.
+
+#### The quote
+
+`POST /api/quotes` and `GET /api/quotes/:id` return the same shape:
+
+```json
+{
+  "id": "5de0294b-9bb5-4b53-8eae-df3583f77588",
+  "createdAt": "2026-11-16T19:50:30.522Z",
+  "fullName": "Ada Lovelace",
+  "email": "ada@test.com",
+  "address": "12 St James Square, London",
+  "monthlyConsumptionKwh": 450,
+  "systemSizeKw": 5,
+  "downPayment": 1000,
+  "systemPrice": 6000,
+  "principal": 5000,
+  "riskBand": "A",
+  "apr": 0.069,
+  "offers": [
+    {
+      "termYears": 5,
+      "apr": 0.069,
+      "principalUsed": 5000,
+      "monthlyPayment": 98.77
+    },
+    {
+      "termYears": 10,
+      "apr": 0.069,
+      "principalUsed": 5000,
+      "monthlyPayment": 57.8
+    },
+    {
+      "termYears": 15,
+      "apr": 0.069,
+      "principalUsed": 5000,
+      "monthlyPayment": 44.66
+    }
+  ]
+}
+```
+
+`downPayment` is `0` when none was given. Offers are ordered by term, shortest
+first.
+
+`GET /api/quotes/:id` returns the quote to the user who requested it and to any
+admin. For everyone else it answers `404`, the same as for an id that does not
+exist, so the response does not reveal which quote ids exist.
+
+#### List quotes
+
+`GET /api/quotes` is scoped by role: a user gets only their own quotes, an
+admin gets every quote ([ADR 0003](adr/0003-role-scoped-quote-list.md)). The
+web app's `/quotes` and `/admin/quotes` pages both call it.
+
+| Query    | Rule                                                                                                              |
+| -------- | ----------------------------------------------------------------------------------------------------------------- |
+| `q`      | optional, at most 100 characters; matches the requesting user's and the applicant's name and email, ignoring case |
+| `limit`  | 1 to 100, default 20                                                                                              |
+| `offset` | 0 or more, default 0                                                                                              |
+
+```json
+{
+  "items": [
+    {
+      "id": "5de0294b-9bb5-4b53-8eae-df3583f77588",
+      "createdAt": "2026-11-16T19:50:30.522Z",
+      "fullName": "Ada Lovelace",
+      "email": "ada@test.com",
+      "systemSizeKw": 5,
+      "systemPrice": 6000,
+      "riskBand": "A",
+      "user": { "fullName": "Ada Lovelace", "email": "ada@test.com" }
+    }
+  ],
+  "total": 1
+}
+```
+
+Items are newest first. `fullName` and `email` are the applicant's; `user` is
+who requested the quote. `total` counts every match across all pages, so a
+client can page with `offset`.

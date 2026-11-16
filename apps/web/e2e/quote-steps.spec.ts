@@ -25,7 +25,6 @@ test("a user requests a quote in six steps with the keyboard, and the summary's 
   await expect(page.getByLabel("Applicant's full name")).toHaveValue(
     "Erika Example",
   );
-  // No preview until there is something to show.
   await expect(preview).toBeHidden();
   await page.keyboard.press("Enter");
 
@@ -115,7 +114,7 @@ test("the down payment slider stops at the system price, and a lower size lowers
   await expect(slider).toHaveAttribute("aria-valuenow", "7200");
   await expect(slider).toHaveAttribute("aria-valuemin", "0");
   await expect(slider).toHaveAttribute("aria-valuemax", "7200");
-  // The range is shown under the slider.
+  await expect(slider).toHaveAttribute("aria-valuetext", /^7\.200\s€$/);
   const range = page.locator('[data-slot="slider"] + div');
   await expect(range.locator("span").first()).toHaveText(/^0\s€$/);
   await expect(range.locator("span").last()).toHaveText(/^7\.200\s€$/);

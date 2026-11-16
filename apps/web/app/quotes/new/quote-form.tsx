@@ -209,47 +209,50 @@ function DownPaymentStep({
     <Controller
       control={form.control}
       name="downPayment"
-      render={({ field, fieldState }) => (
-        <Field data-invalid={fieldState.invalid}>
-          <FieldLabel htmlFor="downPayment">Down payment (€)</FieldLabel>
-          <Slider
-            aria-label="Down payment"
-            min={0}
-            max={maxEuros}
-            step={100}
-            value={[Math.min(Number(field.value) || 0, maxEuros)]}
-            onValueChange={([euros]) => field.onChange(String(euros ?? 0))}
-            onPointerDown={() => onSlidingChange(true)}
-            // After pointerup and pointercancel alike, as the slider captures the pointer.
-            onLostPointerCapture={() => onSlidingChange(false)}
-            className="mt-2"
-          />
-          {/* The range the slider covers. */}
-          <div className="flex justify-between text-sm text-muted-foreground">
-            <span>{formatMoney(0)}</span>
-            <span>{formatMoney(maxEuros)}</span>
-          </div>
-          <Input
-            {...field}
-            value={field.value ?? ""}
-            id="downPayment"
-            type="number"
-            inputMode="decimal"
-            min={0}
-            max={maxEuros}
-            step={0.01}
-            aria-describedby="downPayment-description"
-            aria-invalid={fieldState.invalid}
-          />
-          <FieldDescription id="downPayment-description">
-            {isLowered && "Lowered to the new system price. "}
-            Optional, up to the system price of {formatMoney(maxEuros)}. The
-            part you pay upfront. It lowers the principal, the amount you
-            finance.
-          </FieldDescription>
-          <FieldError errors={[fieldState.error]} />
-        </Field>
-      )}
+      render={({ field, fieldState }) => {
+        const sliderEuros = Math.min(Number(field.value) || 0, maxEuros);
+        return (
+          <Field data-invalid={fieldState.invalid}>
+            <FieldLabel htmlFor="downPayment">Down payment (€)</FieldLabel>
+            <Slider
+              aria-label="Down payment"
+              aria-valuetext={formatMoney(sliderEuros)}
+              min={0}
+              max={maxEuros}
+              step={100}
+              value={[sliderEuros]}
+              onValueChange={([euros]) => field.onChange(String(euros ?? 0))}
+              onPointerDown={() => onSlidingChange(true)}
+              // After pointerup and pointercancel alike, as the slider captures the pointer.
+              onLostPointerCapture={() => onSlidingChange(false)}
+              className="mt-2"
+            />
+            <div className="flex justify-between text-sm text-muted-foreground">
+              <span>{formatMoney(0)}</span>
+              <span>{formatMoney(maxEuros)}</span>
+            </div>
+            <Input
+              {...field}
+              value={field.value ?? ""}
+              id="downPayment"
+              type="number"
+              inputMode="decimal"
+              min={0}
+              max={maxEuros}
+              step={0.01}
+              aria-describedby="downPayment-description"
+              aria-invalid={fieldState.invalid}
+            />
+            <FieldDescription id="downPayment-description">
+              {isLowered && "Lowered to the new system price. "}
+              Optional, up to the system price of {formatMoney(maxEuros)}. The
+              part you pay upfront. It lowers the principal, the amount you
+              finance.
+            </FieldDescription>
+            <FieldError errors={[fieldState.error]} />
+          </Field>
+        );
+      }}
     />
   );
 }
@@ -312,7 +315,6 @@ function QuotePreview({
   return (
     <section
       aria-labelledby="preview-heading"
-      aria-live="polite"
       aria-busy={isSliding}
       className="flex flex-col gap-4 rounded-3xl bg-muted p-6"
     >

@@ -39,8 +39,8 @@ export function StepForm<
   /** True while the next page loads, so a second click cannot submit again. */
   isLeaving: boolean;
   /**
-   * Shown beside the step on desktop, below its fields on mobile. Without one
-   * (null), the step takes the full width.
+   * Shown beside the step on desktop, below its fields on mobile, and
+   * announced politely. Without one (null), the step takes the full width.
    */
   preview?: (step: TSteps[number]) => ReactNode;
   children: (
@@ -151,11 +151,17 @@ export function StepForm<
             goBackTo(steps.findIndex((s) => s.id === id)),
           )}
         </div>
-        {shownPreview && (
-          <div className="lg:sticky lg:top-8 lg:col-start-2 lg:row-span-5 lg:row-start-1 lg:self-start">
-            {shownPreview}
-          </div>
-        )}
+        {/* Always mounted, so a screen reader announces the preview when it appears. */}
+        <div
+          aria-live="polite"
+          className={cn(
+            shownPreview
+              ? "lg:sticky lg:top-8 lg:col-start-2 lg:row-span-5 lg:row-start-1 lg:self-start"
+              : "contents",
+          )}
+        >
+          {shownPreview}
+        </div>
         <FieldError
           className="lg:col-start-1"
           errors={[form.formState.errors.root]}

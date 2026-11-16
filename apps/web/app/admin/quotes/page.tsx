@@ -35,6 +35,8 @@ export default async function AdminQuotesPage({
           maxLength={100}
           defaultValue={parsed.data.q}
           placeholder="Name or email"
+          // Same height as the button next to it.
+          className="h-12"
         />
         <Button type="submit">Search</Button>
       </form>

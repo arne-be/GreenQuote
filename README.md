@@ -193,6 +193,8 @@ The endpoints, authentication and error responses are described in
   costs them net of what it saves.
 - More assets than solar panels, such as a battery storage system, each with its
   own recommended size and price in the quote.
+- Idempotent quote creation, so two tabs or a network retry cannot create the
+  same quote twice ([#40](https://github.com/arne-be/GreenQuote/issues/40)).
 - Email verification.
 - A `pg_trgm` index for the `q` search ([#34](https://github.com/arne-be/GreenQuote/issues/34)).
 

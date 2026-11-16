@@ -30,9 +30,13 @@ open <http://localhost:3000> and sign in as the seeded admin:
 - email: `admin@test.com`
 - password: the value of `SEED_ADMIN_PASSWORD` in `.env`
 
-Demo users: added by [#30](https://github.com/arne-be/GreenQuote/issues/30)
-(demo seed), not on `main` yet. Until then, register your own user on
-`/register`.
+The seed also adds three demo users and three quotes each for them and the
+admin, so `/quotes` and `/admin/quotes` are not empty:
+
+- emails: `lena@test.com`, `tom@test.com`, `nina@test.com`
+- password: the value of `SEED_DEMO_PASSWORD` in `.env`
+
+Set `SEED_DEMO_DATA=false` in `.env` to seed only the admin.
 
 The API is not published on its own port; the web app forwards `/api/*` to it,
 so the Swagger UI is at <http://localhost:3000/api/docs>.

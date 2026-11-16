@@ -23,23 +23,23 @@ patterns.
 
 ## Colour
 
-| Token            | Value     | Use                                                                 |
-| ---------------- | --------- | ------------------------------------------------------------------- |
-| `brand-blue`     | `#002EFF` | Primary button, logo mark, selected state. White text 7.4:1.        |
-| `action-blue`    | `#1A6AFF` | Links, secondary button border and text, primary hover.             |
-| `blue-200`       | `#95B9FF` | Chart series, decorative fills. Never text.                         |
-| `blue-100`       | `#DCE8FF` | Selected offer, info background.                                    |
-| `ink`            | `#000000` | Headings and body text.                                             |
-| `ink-soft`       | `#333333` | Form labels, dialog text.                                           |
-| `ink-muted`      | `#6E6E6E` | Helper text, captions, input borders (5.1:1 on white).              |
-| `navy`           | `#0E0E2C` | Dark sections.                                                      |
-| `surface`        | `#FFFFFF` | Page and card background.                                           |
-| `surface-subtle` | `#F2F2F2` | Grey panels, table headers.                                         |
-| `line`           | `#C2C2C2` | Hairline dividers, disabled fill.                                   |
-| `focus`          | `#2563EB` | Focus ring, 2px.                                                    |
-| `green-700`      | `#39641D` | _Derived:_ success / low risk band text, on `green-100` `#F3F8F0`.  |
-| `orange-700`     | `#C94001` | _Derived:_ warning / high risk band text and errors, on `orange-100` `#FFE9DF`. |
-| `green-500` `teal` `indigo` | `#56D919` `#3EC18F` `#6366F1` | Extra chart series. Never text. |
+| Token                       | Value                         | Use                                                                             |
+| --------------------------- | ----------------------------- | ------------------------------------------------------------------------------- |
+| `brand-blue`                | `#002EFF`                     | Primary button, logo mark, selected state. White text 7.4:1.                    |
+| `action-blue`               | `#1A6AFF`                     | Links, secondary button border and text, primary hover.                         |
+| `blue-200`                  | `#95B9FF`                     | Chart series, decorative fills. Never text.                                     |
+| `blue-100`                  | `#DCE8FF`                     | Selected offer, info background.                                                |
+| `ink`                       | `#000000`                     | Headings and body text.                                                         |
+| `ink-soft`                  | `#333333`                     | Form labels, dialog text.                                                       |
+| `ink-muted`                 | `#6E6E6E`                     | Helper text, captions, input borders (5.1:1 on white).                          |
+| `navy`                      | `#0E0E2C`                     | Dark sections.                                                                  |
+| `surface`                   | `#FFFFFF`                     | Page and card background.                                                       |
+| `surface-subtle`            | `#F2F2F2`                     | Grey panels, table headers.                                                     |
+| `line`                      | `#C2C2C2`                     | Hairline dividers, disabled fill.                                               |
+| `focus`                     | `#2563EB`                     | Focus ring, 2px.                                                                |
+| `green-700`                 | `#39641D`                     | _Derived:_ success / low risk band text, on `green-100` `#F3F8F0`.              |
+| `orange-700`                | `#C94001`                     | _Derived:_ warning / high risk band text and errors, on `orange-100` `#FFE9DF`. |
+| `green-500` `teal` `indigo` | `#56D919` `#3EC18F` `#6366F1` | Extra chart series. Never text.                                                 |
 
 Always pair a status colour with a word; colour alone never carries meaning.
 
@@ -47,18 +47,18 @@ Always pair a status colour with a word; colour alone never carries meaning.
 
 DM Sans from Google Fonts (`next/font/google`, weights 400, 500, 600, 700).
 
-| Style     | Size / line height | Weight | Use                                  |
-| --------- | ------------------ | ------ | ------------------------------------ |
-| `display` | 56 / 62, −0.02em   | 500    | Hero headline, once per page.        |
-| `h1`      | 47 / 56, −0.01em   | 500    | Section titles.                      |
-| `h2`      | 35 / 44            | 500    | Page titles in the app.              |
-| `h3`      | 27 / 36            | 500    | Card titles.                         |
-| `h4`      | 20 / 28            | 600    | Small headings, dialog titles.       |
-| `body-l`  | 20 / 32            | 400    | Lead paragraph.                      |
-| `body`    | 16 / 26            | 400    | Running text.                        |
-| `body-s`  | 15 / 21            | 400    | Card descriptions, table cells.      |
-| `label`   | 14 / 22            | 600    | Buttons, form labels.                |
-| `caption` | 12 / 17            | 400    | Footnotes, chart axes.               |
+| Style     | Size / line height | Weight | Use                                     |
+| --------- | ------------------ | ------ | --------------------------------------- |
+| `display` | 56 / 62, −0.02em   | 500    | Hero headline, once per page.           |
+| `h1`      | 47 / 56, −0.01em   | 500    | Section titles.                         |
+| `h2`      | 35 / 44            | 500    | Page titles in the app.                 |
+| `h3`      | 27 / 36            | 500    | Card titles.                            |
+| `h4`      | 20 / 28            | 600    | Small headings, dialog titles.          |
+| `body-l`  | 20 / 32            | 400    | Lead paragraph.                         |
+| `body`    | 16 / 26            | 400    | Running text.                           |
+| `body-s`  | 15 / 21            | 400    | Card descriptions, table cells.         |
+| `label`   | 14 / 22            | 600    | Buttons, form labels.                   |
+| `caption` | 12 / 17            | 400    | Footnotes, chart axes.                  |
 | `figure`  | 32 / 36            | 600    | Prices and instalments, `tabular-nums`. |
 
 ## Spacing, radius, shadow
@@ -118,6 +118,13 @@ Button: override the shadcn default to `rounded-full`, `h-12 px-6`; the
   `aria-invalid` and an orange-700 message saying how to fix it.
 - **Badge:** pill, word plus colour: risk band "Geringes Risiko" (green),
   "Hohes Risiko" (orange), info (blue).
+- **Step form:** one short question per screen (`StepForm` in `apps/web`), for
+  Register and Request a quote; Sign in stays one screen. "Step 2 of 3" above
+  the fields; a secondary "Back" and a primary "Next" below, the last step's
+  button naming the action ("Create account"). Enter goes to the next step,
+  focus moves to the step's first input, and the browser Back goes to the
+  previous step (`?step=<id>`). Values stay in memory. On desktop a sticky grey
+  "Preview" panel sits beside the step, below it on mobile.
 
 ## Logos
 

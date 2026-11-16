@@ -1,6 +1,6 @@
 "use client";
 
-import { registerSchema } from "@greenquote/domain";
+import { type RegisterInput, registerSchema } from "@greenquote/domain";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -22,6 +22,24 @@ export function RegisterForm() {
     defaultValues: { fullName: "", email: "", password: "" },
   });
 
+  const handleSubmit = async (values: RegisterInput) => {
+    try {
+      await register(values);
+      setIsLeaving(true);
+      router.push("/quotes/new");
+      router.refresh();
+    } catch (error) {
+      if (error instanceof ApiError && error.status === 409) {
+        // The step form goes back to the Email step to show this.
+        form.setError("email", { type: "taken" });
+        return;
+      }
+      form.setError("root", {
+        message: "Could not register you. Please try again.",
+      });
+    }
+  };
+
   return (
     <div className="flex flex-col gap-7">
       <StepForm
@@ -29,23 +47,7 @@ export function RegisterForm() {
         steps={registerSteps}
         submitLabel="Create account"
         isLeaving={isLeaving}
-        onSubmit={async (values) => {
-          try {
-            await register(values);
-            setIsLeaving(true);
-            router.push("/quotes/new");
-            router.refresh();
-          } catch (error) {
-            if (error instanceof ApiError && error.status === 409) {
-              // The step form goes back to the Email step to show this.
-              form.setError("email", { type: "taken" });
-              return;
-            }
-            form.setError("root", {
-              message: "Could not register you. Please try again.",
-            });
-          }
-        }}
+        onSubmit={handleSubmit}
       >
         {(step) =>
           ({

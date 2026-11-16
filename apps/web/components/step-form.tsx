@@ -18,8 +18,8 @@ import { resolveStep, type Step } from "@/lib/steps";
  * goes to the previous step; the values stay in memory only.
  */
 export function StepForm<
-  T extends FieldValues,
-  S extends readonly [Step<T>, ...Step<T>[]],
+  TValues extends FieldValues,
+  TSteps extends readonly [Step<TValues>, ...Step<TValues>[]],
 >({
   form,
   steps,
@@ -28,18 +28,18 @@ export function StepForm<
   isLeaving,
   children,
 }: {
-  form: UseFormReturn<T>;
-  steps: S;
-  onSubmit: SubmitHandler<T>;
+  form: UseFormReturn<TValues>;
+  steps: TSteps;
+  onSubmit: SubmitHandler<TValues>;
   submitLabel: string;
   /** True while the next page loads, so a second click cannot submit again. */
   isLeaving: boolean;
-  children: (step: S[number]) => ReactNode;
+  children: (step: TSteps[number]) => ReactNode;
 }) {
   const [index, setIndex] = useState(0);
   // The furthest step the user has reached with valid earlier steps.
   const reached = useRef(0);
-  const step: S[number] = steps[index] ?? steps[0];
+  const step: TSteps[number] = steps[index] ?? steps[0];
   const isLast = index === steps.length - 1;
 
   const router = useRouter();
@@ -87,9 +87,15 @@ export function StepForm<
     goBackToFirstInvalidStep();
   }, goBackToFirstInvalidStep);
 
+  // Set while a step validates, so a second Enter cannot push its step twice.
+  const isAdvancing = useRef(false);
   const next = async () => {
     const following = steps[index + 1];
-    if (!following || !(await form.trigger(step.fields))) return;
+    if (!following || isAdvancing.current) return;
+    isAdvancing.current = true;
+    const isValid = await form.trigger(step.fields);
+    isAdvancing.current = false;
+    if (!isValid) return;
     reached.current = Math.max(reached.current, index + 1);
     window.history.pushState(null, "", `?step=${following.id}`);
     setIndex(index + 1);

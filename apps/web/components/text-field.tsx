@@ -8,27 +8,20 @@ import {
   type FieldValues,
 } from "react-hook-form";
 
-import {
-  Field,
-  FieldDescription,
-  FieldError,
-  FieldLabel,
-} from "@/components/ui/field";
+import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 
-/** A labelled input bound to a form field, with its hint and error below. */
-export function TextField<T extends FieldValues>({
+/** A labelled input bound to a form field, with its error below. */
+export function TextField<TValues extends FieldValues>({
   control,
   name,
   label,
-  description,
   error,
   ...inputProps
 }: {
-  control: Control<T>;
-  name: FieldPath<T>;
+  control: Control<TValues>;
+  name: FieldPath<TValues>;
   label: string;
-  description?: ReactNode;
   /** Replaces the error message, for an error that needs a link. */
   error?: ReactNode;
 } & Omit<ComponentProps<typeof Input>, "name" | "id">) {
@@ -45,7 +38,6 @@ export function TextField<T extends FieldValues>({
             id={name}
             aria-invalid={fieldState.invalid}
           />
-          {description && <FieldDescription>{description}</FieldDescription>}
           <FieldError errors={[fieldState.error]}>
             {fieldState.error && error}
           </FieldError>

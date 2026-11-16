@@ -1,9 +1,9 @@
 import type { FieldPath, FieldValues } from "react-hook-form";
 
 /** One screen of a step form: its id in `?step=` and the fields it asks for. */
-export type Step<T extends FieldValues> = {
+export type Step<TValues extends FieldValues> = {
   id: string;
-  fields: readonly FieldPath<T>[];
+  fields: readonly FieldPath<TValues>[];
 };
 
 /**

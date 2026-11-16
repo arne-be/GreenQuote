@@ -88,3 +88,19 @@ test("reloading a later step starts again at the first step", async ({
   await expect(page).toHaveURL(/\/register$/);
   await expect(page.getByLabel("Full name")).toHaveValue("");
 });
+
+test("submitting a step twice at once adds one history entry, so Back goes to the previous step", async ({
+  page,
+}) => {
+  await page.goto("/register");
+  await page.getByLabel("Full name").fill("Erika Example");
+  // Both in one tick, before the first step's validation has finished.
+  await page.locator("form").evaluate((form: HTMLFormElement) => {
+    form.requestSubmit();
+    form.requestSubmit();
+  });
+  await expect(page.getByText("Step 2 of 3")).toBeVisible();
+
+  await page.goBack();
+  await expect(page.getByText("Step 1 of 3")).toBeVisible();
+});

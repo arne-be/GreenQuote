@@ -1,6 +1,6 @@
 "use client";
 
-import { quoteInputSchema } from "@greenquote/domain";
+import { type QuoteInput, quoteInputSchema } from "@greenquote/domain";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
@@ -14,7 +14,7 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { createQuote } from "@/lib/api";
+import { ApiError, createQuote } from "@/lib/api";
 
 export function QuoteForm({
   fullName,
@@ -42,10 +42,22 @@ export function QuoteForm({
       const quote = await createQuote(values);
       // Replace, so going back does not land on a form that resubmits.
       router.replace(`/quotes/${quote.id}`);
-    } catch {
-      form.setError("root", {
-        message: "Could not request the quote. Please try again.",
-      });
+    } catch (error) {
+      let hasFieldError = false;
+      if (error instanceof ApiError) {
+        for (const { path, message } of error.fieldErrors) {
+          const field = path[0];
+          if (isQuoteField(field)) {
+            form.setError(field, { message });
+            hasFieldError = true;
+          }
+        }
+      }
+      if (!hasFieldError) {
+        form.setError("root", {
+          message: "Could not request the quote. Please try again.",
+        });
+      }
     }
   });
 
@@ -135,4 +147,8 @@ export function QuoteForm({
       </FieldGroup>
     </form>
   );
+}
+
+function isQuoteField(field: unknown): field is keyof QuoteInput {
+  return typeof field === "string" && field in quoteInputSchema.shape;
 }

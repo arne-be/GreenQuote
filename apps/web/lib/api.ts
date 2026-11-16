@@ -7,18 +7,33 @@ import {
   type User,
   userSchema,
 } from "@greenquote/domain";
+import { redirect } from "next/navigation";
+import { z } from "zod";
 
 import { env } from "@/env";
 
-/** A non-2xx answer from the API, with its status so forms can map it to a field. */
+/** A non-2xx answer from the API, with its status and any field errors so forms can map them to fields. */
 export class ApiError extends Error {
   constructor(
     readonly status: number,
     message: string,
+    readonly fieldErrors: FieldError[] = [],
   ) {
     super(message);
   }
 }
+
+// The `errors` of a 400, from the Zod pipe or a domain ValidationError.
+const fieldErrorsSchema = z.object({
+  errors: z.array(
+    z.object({
+      path: z.array(z.union([z.string(), z.number()])),
+      message: z.string(),
+    }),
+  ),
+});
+
+type FieldError = z.infer<typeof fieldErrorsSchema>["errors"][number];
 
 /** The signed-in user, or null without a valid session. Server only: pass the request's cookie header. */
 export async function getCurrentUser(cookie: string): Promise<User | null> {
@@ -42,6 +57,7 @@ export async function getQuote(
     headers: { cookie },
     cache: "no-store",
   });
+  if (response.status === 401) redirect("/login");
   // 400 is an id that is not a UUID: no such quote either.
   if (response.status === 404 || response.status === 400) return null;
   if (!response.ok) {
@@ -73,7 +89,14 @@ async function post(path: string, body?: unknown): Promise<unknown> {
     body: body === undefined ? null : JSON.stringify(body),
   });
   if (!response.ok) {
-    throw new ApiError(response.status, `POST ${path} failed`);
+    const body = fieldErrorsSchema.safeParse(
+      await response.json().catch(() => null),
+    );
+    throw new ApiError(
+      response.status,
+      `POST ${path} failed`,
+      body.success ? body.data.errors : [],
+    );
   }
   return response.status === 204 ? undefined : response.json();
 }

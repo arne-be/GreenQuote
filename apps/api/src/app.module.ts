@@ -12,6 +12,7 @@ import { DomainExceptionFilter } from "./common/domain-exception.filter.js";
 import { validateEnv } from "./config/env.js";
 import { DatabaseModule } from "./database.module.js";
 import { HealthController } from "./health/health.controller.js";
+import { QuotesModule } from "./quotes/quotes.module.js";
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { HealthController } from "./health/health.controller.js";
     }),
     DatabaseModule,
     AuthModule,
+    QuotesModule,
   ],
   controllers: [HealthController],
   providers: [

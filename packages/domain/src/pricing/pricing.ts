@@ -6,9 +6,7 @@ export function calculateQuoteResult({
   monthlyConsumptionKwh,
   downPaymentCents,
 }: QuoteInputs): QuoteResult {
-  const systemPriceCents = Math.round(
-    systemSizeKw * PRICING_RULES.pricePerKwCents,
-  );
+  const systemPriceCents = calculateSystemPriceCents(systemSizeKw);
   const principalCents = systemPriceCents - downPaymentCents;
   const riskBand = toRiskBand(systemSizeKw, monthlyConsumptionKwh);
   const apr = PRICING_RULES.aprByRiskBand[riskBand];
@@ -29,6 +27,10 @@ export function calculateQuoteResult({
       ),
     })),
   };
+}
+
+export function calculateSystemPriceCents(systemSizeKw: number): number {
+  return Math.round(systemSizeKw * PRICING_RULES.pricePerKwCents);
 }
 
 // Annuity in float, rounded to cents once at the end.

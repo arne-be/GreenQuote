@@ -16,4 +16,4 @@ Once done, call the Skill tool with "code-review" to review the work.
 
 Commit your work to the current branch.
 
-When you open the PR, run the review loop (`docs/agents/review-loop.md`) and stop for the user's go-ahead.
+When you open the PR, post that review as the first of the review loop (`docs/agents/review-loop.md`), continue the loop, and stop for the user's go-ahead.

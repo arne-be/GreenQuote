@@ -1,8 +1,6 @@
 # Review loop
 
 Every PR goes through the review loop before the user is asked to merge it.
-`CLAUDE.md`'s Ship step and the `implement` and `implement-spec` skills point
-here.
 
 1. **Post a review.** Run `code-review` on the PR and post its findings:
    `gh pr review <n> --comment --body-file <file>`.
@@ -23,5 +21,5 @@ them in the hand-over.
 
 When the loop ends, report the PR's URL with the handed-over findings and stop.
 The user says in chat to merge that PR; GitHub cannot record an author's
-approval of their own PR. A later commit that changes the code starts the loop
-again.
+approval of their own PR. After the hand-over, a later commit that changes the
+code starts the loop again.

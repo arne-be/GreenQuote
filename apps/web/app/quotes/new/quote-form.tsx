@@ -174,8 +174,8 @@ export function QuoteForm({
                 aria-invalid={fieldState.invalid}
               />
               <FieldDescription id="downPayment-description">
-                Optional. What you pay upfront yourself. It lowers the
-                principal, the amount you finance.
+                Optional. The part you pay upfront. It lowers the principal, the
+                amount you finance.
               </FieldDescription>
               <FieldError errors={[fieldState.error]} />
             </Field>

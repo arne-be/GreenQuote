@@ -28,24 +28,11 @@ is in `.claude/skills/ask-matt/SKILL.md`.
 - **Build**: `implement` per ticket (test-first with `tdd`, closed by
   `code-review`), or `implement-spec` for a whole spec.
 - **Ship**: one branch per change off `main`, a PR whose body follows `pr`,
-  a posted review, its findings fixed, the user's go-ahead, then a squash
-  merge (`gh pr merge --squash`). The PR title becomes the squash commit, so
-  it is a Conventional Commit. GitHub deletes the branch.
-  - **Posted review**: run `code-review` on the PR and post its findings with
-    `gh pr review <n> --comment --body-file <file>`. Run and post it again
-    whenever later commits change the code.
-  - **Findings fixed**: fix each finding on the same branch and get CI green;
-    that change triggers the next posted review. Stop when a review leaves
-    nothing to fix, or after the third review. Hand these to the user instead,
-    each with a one-line reason: findings still open after the third review,
-    findings that need a decision (a trade-off, a judgement-call smell, a
-    conflict with an ADR or the issue), findings you think are wrong, and a CI
-    failure you cannot fix. File out-of-scope findings as issues and link them
-    in the hand-over.
-  - **Go-ahead**: the user says in chat to merge that PR (GitHub cannot record
-    an author's approval of their own PR). Until the review-and-fix loop has
-    ended and the user gives the go-ahead, an agent stops at the open PR and
-    reports its URL with the handed-over findings.
+  the review loop (`docs/agents/review-loop.md`: post a `code-review`, fix its
+  findings, repeat), the user's go-ahead in chat, then a squash merge
+  (`gh pr merge --squash`). Until the loop has ended and the user says to
+  merge, an agent stops at the open PR. The PR title becomes the squash commit,
+  so it is a Conventional Commit. GitHub deletes the branch.
 
 ## Layout
 

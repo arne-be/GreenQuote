@@ -35,7 +35,7 @@ Communication to and from subagents should be sparse. Communicate primarily thro
 
 6. If this changes the **frontier** of available tickets, kick off more **implementer subagents** to work on the new tickets. This allows for maximum concurrency.
 
-7. Once all tickets are complete, run `CLAUDE.md`'s Ship step from "Posted review" on over the integration branch, with a fresh **implementer subagent** for each round of fixes. Post each review on the draft PR if one exists.
+7. Once all tickets are complete, run the review loop (`docs/agents/review-loop.md`) over the integration branch, with a fresh **implementer subagent** for each round of fixes. Post each review on the draft PR if one exists.
 
 8. If a draft PR exists, mark it ready for review and hand it to the user without merging. Otherwise, resolve each ticket the way the issue tracker closes work, and report the integration branch.
 

@@ -26,3 +26,18 @@ jobs:
       - run: pnpm build
       # The db tests start Postgres with testcontainers, using the runner's Docker.
       - run: pnpm test
+
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: cp .env.example .env
+      - run: docker compose up --build --wait
+      - run: pnpm --filter web exec playwright install --with-deps chromium
+      - run: pnpm test:e2e

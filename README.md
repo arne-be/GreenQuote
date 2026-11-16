@@ -112,8 +112,23 @@ pnpm test
 tests start their own Postgres with Testcontainers, so Docker must be running.
 `pnpm format` runs Prettier.
 
+The end-to-end tests drive the web app in Chromium with Playwright: a new user
+requests a quote and sees the offers, and the admin finds another user's quote.
+They run against a stack that is already up, the Docker one or `pnpm dev`, on
+<http://localhost:3000> (set `E2E_BASE_URL` for another address), and read
+`SEED_ADMIN_PASSWORD` from `.env`. Install the browser once, then run them:
+
+```bash
+pnpm --filter web exec playwright install chromium
+```
+
+```bash
+pnpm test:e2e
+```
+
 CI (`.github/workflows/ci.yml`) runs `pnpm lint`, `pnpm types`, `pnpm build`
-and `pnpm test` on every pull request and on every push to `main`. The
+and `pnpm test` on every pull request and on every push to `main`, and in a
+second job starts the Docker stack and runs `pnpm test:e2e`. The
 pre-commit hook formats the staged files and runs lint, types and tests;
 commitlint enforces Conventional Commits.
 

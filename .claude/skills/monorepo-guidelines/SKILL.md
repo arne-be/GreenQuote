@@ -59,7 +59,8 @@ transport around it. Read `developing-domain-package` when unsure.
 
 ## CI
 
-One required job: `lint` -> `types` -> `build` -> `test`. On PRs, run only
+One required job: `lint` -> `types` -> `build` -> `test`. A second job, `e2e`,
+runs in parallel: it starts the Docker stack and runs `pnpm test:e2e`. On PRs, run only
 affected packages: `turbo run test --filter=...[origin/main]`.
 
 ## Commits

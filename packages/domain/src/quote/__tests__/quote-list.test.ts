@@ -12,7 +12,7 @@ let grace: Actor;
 let admin: Actor;
 
 // 8.5 kW at 400 kWh a month: €10,200, risk band B.
-function insertQuote(
+function createQuoteOn(
   actor: Actor,
   fullName: string,
   email: string,
@@ -45,12 +45,12 @@ beforeAll(async () => {
     email: "admin@test.com",
     role: "admin",
   });
-  await insertQuote(ada, "Ada Lovelace", "ada@test.com", "2026-01-01");
-  await insertQuote(ada, "Charles Babbage", "charles@test.com", "2026-01-02");
+  await createQuoteOn(ada, "Ada Lovelace", "ada@test.com", "2026-01-01");
+  await createQuoteOn(ada, "Charles Babbage", "charles@test.com", "2026-01-02");
   // Same timestamp as each other: order must still be stable (id breaks the tie).
-  await insertQuote(grace, "Grace Hopper", "grace@test.com", "2026-01-03");
-  await insertQuote(grace, "Howard Aiken", "howard@test.com", "2026-01-03");
-  await insertQuote(grace, "Ada Namesake", "namesake@test.com", "2026-01-04");
+  await createQuoteOn(grace, "Grace Hopper", "grace@test.com", "2026-01-03");
+  await createQuoteOn(grace, "Howard Aiken", "howard@test.com", "2026-01-03");
+  await createQuoteOn(grace, "Ada Namesake", "namesake@test.com", "2026-01-04");
 });
 
 afterAll(() => testDb.stop());

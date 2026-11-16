@@ -12,15 +12,17 @@ export async function startTestDb() {
   const container = await new PostgreSqlContainer("postgres:17-alpine").start();
   const databaseUrl = container.getConnectionUri();
   const db = createDb(databaseUrl);
-  await migrateDb(db);
-  return {
-    db,
-    databaseUrl,
-    stop: async () => {
-      await db.$client.end();
-      await container.stop();
-    },
+  const stop = async () => {
+    await db.$client.end();
+    await container.stop();
   };
+  try {
+    await migrateDb(db);
+  } catch (error) {
+    await stop();
+    throw error;
+  }
+  return { db, databaseUrl, stop };
 }
 
 /** Inserts a user; the default email is unique so calls do not collide. */

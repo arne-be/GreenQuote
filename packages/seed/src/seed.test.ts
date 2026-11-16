@@ -32,22 +32,25 @@ const adminPassword = "admin-password";
 const demoPassword = "demo-password";
 
 describe("seed", () => {
-  it("seeds only the admin when SEED_DEMO_DATA is unset", async () => {
-    const env = {
-      ...process.env,
-      DATABASE_URL: container.getConnectionUri(),
-      SEED_ADMIN_PASSWORD: adminPassword,
-      SEED_DEMO_PASSWORD: demoPassword,
-      // Node leaves undefined variables out of the child's environment.
-      SEED_DEMO_DATA: undefined,
-    };
-    execFileSync("pnpm", ["exec", "tsx", "src/main.ts"], { env });
+  it.each([undefined, "false"])(
+    "seeds only the admin when SEED_DEMO_DATA is %s",
+    async (seedDemoData) => {
+      const env = {
+        ...process.env,
+        DATABASE_URL: container.getConnectionUri(),
+        SEED_ADMIN_PASSWORD: adminPassword,
+        SEED_DEMO_PASSWORD: demoPassword,
+        // Node leaves undefined variables out of the child's environment.
+        SEED_DEMO_DATA: seedDemoData,
+      };
+      execFileSync("pnpm", ["exec", "tsx", "src/main.ts"], { env });
 
-    expect(await db.select({ email: users.email }).from(users)).toEqual([
-      { email: "admin@test.com" },
-    ]);
-    expect(await db.select().from(quotes)).toEqual([]);
-  });
+      expect(await db.select({ email: users.email }).from(users)).toEqual([
+        { email: "admin@test.com" },
+      ]);
+      expect(await db.select().from(quotes)).toEqual([]);
+    },
+  );
 
   it("seeds demo users and quotes for every risk band, spread over past weeks", async () => {
     await seed(db, { adminPassword, demoPassword });

@@ -69,7 +69,8 @@ version starts serving.
 `pnpm db:seed` (`packages/seed`, which may call domain services) is idempotent
 (upsert on a natural key such as email) and creates the admin user from
 environment variables, hashing the password with the same hasher the app uses.
-With `SEED_DEMO_DATA=true` it also adds demo users and quotes. Seed data never contains real personal data.
+With `SEED_DEMO_DATA=true` it also adds demo users and quotes. Seed data never
+contains real personal data.
 
 ## Destructive changes
 

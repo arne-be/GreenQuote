@@ -2,20 +2,20 @@ import { type Db, quotes, users } from "@greenquote/db";
 import type { QuoteInput } from "@greenquote/domain";
 import { QuoteService } from "@greenquote/domain/server";
 import { hash } from "@node-rs/argon2";
+import { subDays } from "date-fns";
 import { and, eq, inArray } from "drizzle-orm";
 
 const ADMIN = { fullName: "Admin", email: "admin@test.com" };
-const DEMO_USERS = [
-  { fullName: "Lena Fischer", email: "lena@test.com" },
-  { fullName: "Tom Weber", email: "tom@test.com" },
-  { fullName: "Nina Meyer", email: "nina@test.com" },
-];
+const LENA = { fullName: "Lena Fischer", email: "lena@test.com" };
+const TOM = { fullName: "Tom Weber", email: "tom@test.com" };
+const NINA = { fullName: "Nina Meyer", email: "nina@test.com" };
+const DEMO_USERS = [LENA, TOM, NINA];
 
-// Band A: ≥ 400 kWh and ≤ 6 kW; B: ≥ 250 kWh; C: the rest. At €1,200 per kW,
-// a down payment of 1,200 × kW leaves a principal of 0.
+// Each owner gets one quote per risk band; sizes, consumptions and the principal-0
+// down payments (Paul Wagner, Lina Neumann) follow PRICING_RULES in @greenquote/domain.
 const DEMO_QUOTES: { owner: string; daysAgo: number; input: QuoteInput }[] = [
   {
-    owner: "lena@test.com",
+    owner: LENA.email,
     daysAgo: 2,
     input: {
       fullName: "Jonas Becker",
@@ -26,7 +26,7 @@ const DEMO_QUOTES: { owner: string; daysAgo: number; input: QuoteInput }[] = [
     },
   },
   {
-    owner: "lena@test.com",
+    owner: LENA.email,
     daysAgo: 5,
     input: {
       fullName: "Mia Schulz",
@@ -38,7 +38,7 @@ const DEMO_QUOTES: { owner: string; daysAgo: number; input: QuoteInput }[] = [
     },
   },
   {
-    owner: "lena@test.com",
+    owner: LENA.email,
     daysAgo: 9,
     input: {
       fullName: "Paul Wagner",
@@ -50,7 +50,7 @@ const DEMO_QUOTES: { owner: string; daysAgo: number; input: QuoteInput }[] = [
     },
   },
   {
-    owner: "tom@test.com",
+    owner: TOM.email,
     daysAgo: 3,
     input: {
       fullName: "Sophie Hoffmann",
@@ -62,7 +62,7 @@ const DEMO_QUOTES: { owner: string; daysAgo: number; input: QuoteInput }[] = [
     },
   },
   {
-    owner: "tom@test.com",
+    owner: TOM.email,
     daysAgo: 12,
     input: {
       fullName: "Felix Koch",
@@ -73,7 +73,7 @@ const DEMO_QUOTES: { owner: string; daysAgo: number; input: QuoteInput }[] = [
     },
   },
   {
-    owner: "tom@test.com",
+    owner: TOM.email,
     daysAgo: 20,
     input: {
       fullName: "Emma Richter",
@@ -85,7 +85,7 @@ const DEMO_QUOTES: { owner: string; daysAgo: number; input: QuoteInput }[] = [
     },
   },
   {
-    owner: "nina@test.com",
+    owner: NINA.email,
     daysAgo: 7,
     input: {
       fullName: "Leon Klein",
@@ -96,7 +96,7 @@ const DEMO_QUOTES: { owner: string; daysAgo: number; input: QuoteInput }[] = [
     },
   },
   {
-    owner: "nina@test.com",
+    owner: NINA.email,
     daysAgo: 15,
     input: {
       fullName: "Hannah Wolf",
@@ -108,7 +108,7 @@ const DEMO_QUOTES: { owner: string; daysAgo: number; input: QuoteInput }[] = [
     },
   },
   {
-    owner: "nina@test.com",
+    owner: NINA.email,
     daysAgo: 26,
     input: {
       fullName: "Noah Schröder",
@@ -119,7 +119,7 @@ const DEMO_QUOTES: { owner: string; daysAgo: number; input: QuoteInput }[] = [
     },
   },
   {
-    owner: "admin@test.com",
+    owner: ADMIN.email,
     daysAgo: 1,
     input: {
       fullName: "Lina Neumann",
@@ -131,7 +131,7 @@ const DEMO_QUOTES: { owner: string; daysAgo: number; input: QuoteInput }[] = [
     },
   },
   {
-    owner: "admin@test.com",
+    owner: ADMIN.email,
     daysAgo: 18,
     input: {
       fullName: "Elias Schwarz",
@@ -142,7 +142,7 @@ const DEMO_QUOTES: { owner: string; daysAgo: number; input: QuoteInput }[] = [
     },
   },
   {
-    owner: "admin@test.com",
+    owner: ADMIN.email,
     daysAgo: 33,
     input: {
       fullName: "Clara Zimmermann",
@@ -154,8 +154,6 @@ const DEMO_QUOTES: { owner: string; daysAgo: number; input: QuoteInput }[] = [
     },
   },
 ];
-
-const DAY_MS = 24 * 60 * 60 * 1000;
 
 /** Seeds the admin; with a demo password also the demo users and their quotes. Idempotent. */
 export async function seed(
@@ -203,7 +201,7 @@ export async function seed(
     const quote = await quoteService.createQuote(actor, input);
     await db
       .update(quotes)
-      .set({ createdAt: new Date(Date.now() - daysAgo * DAY_MS) })
+      .set({ createdAt: subDays(new Date(), daysAgo) })
       .where(eq(quotes.id, quote.id));
   }
 }

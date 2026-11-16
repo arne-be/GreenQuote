@@ -6,9 +6,9 @@ on:
     branches: [main]
 
 concurrency:
-  group: ci-${{ github.ref }}
-  # Only PRs: every main commit keeps its own CI result.
-  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+  # A new push cancels a PR's older run; every main commit gets its own group, so it keeps its CI result.
+  group: ci-${{ github.event_name == 'pull_request' && github.ref || github.sha }}
+  cancel-in-progress: true
 
 jobs:
   check:

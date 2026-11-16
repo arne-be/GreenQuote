@@ -4,7 +4,6 @@ import { z } from "zod";
 import { registerSchema } from "../auth/auth.schema.ts";
 import { centsToEuros, eurosToCents } from "../money.ts";
 import { calculateSystemPriceCents } from "../pricing/pricing.ts";
-import { PRICING_RULES } from "../pricing/pricing-rules.ts";
 
 export const DOWN_PAYMENT_ABOVE_SYSTEM_PRICE =
   "The down payment cannot exceed the system price";
@@ -16,9 +15,9 @@ const STORAGE_BOUNDS = {
   maxMonthlyConsumptionKwh: 1_000_000,
   maxSystemSizeKw: 10_000,
 };
-const MAX_SYSTEM_PRICE = centsToEuros(
-  calculateSystemPriceCents(STORAGE_BOUNDS.maxSystemSizeKw),
-);
+// Money columns are Postgres integer cents. Response bounds must not follow the
+// current pricing rules, or stored quotes from older rules would stop parsing.
+const MAX_STORED_EUROS = centsToEuros(2_147_483_647);
 
 // OpenAPI descriptions, shared by the request and the response.
 const DESCRIPTIONS = {
@@ -80,7 +79,7 @@ export const quoteInputSchema = z
     },
   );
 
-const euros = () => z.number().nonnegative().max(MAX_SYSTEM_PRICE);
+const euros = () => z.number().nonnegative().max(MAX_STORED_EUROS);
 const apr = z.number().min(0).max(1).describe(DESCRIPTIONS.apr);
 
 const offerSchema = z.object({
@@ -124,8 +123,10 @@ export const quoteSchema = z.object({
   apr,
   offers: z
     .array(offerSchema)
-    .length(PRICING_RULES.termsYears.length)
-    .describe("One offer per term, shortest term first"),
+    .min(1)
+    .describe(
+      "One offer per term of the quote's pricing rules, shortest first",
+    ),
 });
 
 export type QuoteInput = z.infer<typeof quoteInputSchema>;

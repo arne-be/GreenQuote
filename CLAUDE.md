@@ -52,6 +52,7 @@ is in `.claude/skills/ask-matt/SKILL.md`.
 
 ```bash
 pnpm install
+docker compose up --build # full stack: db, migrate + seed, api, web on :3000
 docker compose up -d db   # Postgres
 pnpm db:migrate && pnpm db:seed
 pnpm dev                  # all apps via turbo

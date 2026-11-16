@@ -1,4 +1,4 @@
-import type { PRICING_RULES } from "./pricing-rules.js";
+import type { PRICING_RULES } from "./pricing-rules.ts";
 
 export type RiskBand = keyof typeof PRICING_RULES.aprByRiskBand;
 

@@ -1,0 +1,55 @@
+import {
+  type LoginInput,
+  type RegisterInput,
+  type User,
+  userSchema,
+} from "@greenquote/domain";
+
+import { env } from "@/env";
+
+/** A non-2xx answer from the API, with its status so forms can map it to a field. */
+export class ApiError extends Error {
+  constructor(
+    readonly status: number,
+    message: string,
+  ) {
+    super(message);
+  }
+}
+
+/** The signed-in user, or null without a valid session. Server only: pass the request's cookie header. */
+export async function getCurrentUser(cookie: string): Promise<User | null> {
+  const response = await fetch(`${env.API_URL}/api/auth/me`, {
+    headers: { cookie },
+    cache: "no-store",
+  });
+  if (response.status === 401) return null;
+  if (!response.ok) {
+    throw new ApiError(response.status, "GET /api/auth/me failed");
+  }
+  return userSchema.parse(await response.json());
+}
+
+export async function register(input: RegisterInput): Promise<User> {
+  return userSchema.parse(await post("/api/auth/register", input));
+}
+
+export async function login(input: LoginInput): Promise<User> {
+  return userSchema.parse(await post("/api/auth/login", input));
+}
+
+export async function logout(): Promise<void> {
+  await post("/api/auth/logout");
+}
+
+async function post(path: string, body?: unknown): Promise<unknown> {
+  const response = await fetch(path, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: body === undefined ? null : JSON.stringify(body),
+  });
+  if (!response.ok) {
+    throw new ApiError(response.status, `POST ${path} failed`);
+  }
+  return response.status === 204 ? undefined : response.json();
+}

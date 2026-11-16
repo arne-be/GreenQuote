@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint . --max-warnings=0",
     "types": "next typegen && tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run --exclude \"e2e/**\"",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "@greenquote/domain": "workspace:*",
@@ -27,6 +28,7 @@
   "devDependencies": {
     "@greenquote/config": "workspace:*",
     "@next/eslint-plugin-next": "^16.4.6",
+    "@playwright/test": "^1.65.1",
     "@tailwindcss/postcss": "^4.3.5",
     "@types/node": "catalog:",
     "@types/react": "^19.3.0",

@@ -20,7 +20,8 @@
       "persistent": true
     },
     "test:e2e": {
-      "cache": false
+      "cache": false,
+      "passThroughEnv": ["E2E_BASE_URL"]
     },
     "db:migrate": {
       "cache": false

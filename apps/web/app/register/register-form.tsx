@@ -4,6 +4,7 @@ import { registerSchema } from "@greenquote/domain";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 
 import { Button } from "@/components/ui/button";
@@ -19,6 +20,8 @@ import { ApiError, register } from "@/lib/api";
 
 export function RegisterForm() {
   const router = useRouter();
+  // Stays true while the next page loads, so a second click cannot submit again.
+  const [isLeaving, setIsLeaving] = useState(false);
   const form = useForm({
     resolver: zodResolver(registerSchema),
     defaultValues: { fullName: "", email: "", password: "" },
@@ -27,6 +30,7 @@ export function RegisterForm() {
   const handleSubmit = form.handleSubmit(async (values) => {
     try {
       await register(values);
+      setIsLeaving(true);
       router.push("/quotes/new");
       router.refresh();
     } catch (error) {
@@ -96,7 +100,10 @@ export function RegisterForm() {
           )}
         />
         <FieldError errors={[form.formState.errors.root]} />
-        <Button type="submit" disabled={form.formState.isSubmitting}>
+        <Button
+          type="submit"
+          disabled={form.formState.isSubmitting || isLeaving}
+        >
           Register
         </Button>
         <FieldDescription>

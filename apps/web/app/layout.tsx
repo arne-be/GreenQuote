@@ -6,6 +6,9 @@ import Image from "next/image";
 import Link from "next/link";
 import type { ReactNode } from "react";
 
+import { LogoutButton } from "@/components/logout-button";
+import { getCurrentUser } from "@/lib/session";
+
 const dmSans = DM_Sans({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
@@ -17,7 +20,13 @@ export const metadata: Metadata = {
   icons: "/cloover-mark.svg",
 };
 
-export default function RootLayout({ children }: { children: ReactNode }) {
+export default async function RootLayout({
+  children,
+}: {
+  children: ReactNode;
+}) {
+  const user = await getCurrentUser();
+
   return (
     <html lang="de" className={dmSans.variable}>
       <body>
@@ -31,7 +40,12 @@ export default function RootLayout({ children }: { children: ReactNode }) {
               priority
             />
           </Link>
-          {/* User name and logout button go here (#8). */}
+          {user !== null && (
+            <div className="flex items-center gap-4">
+              <span className="text-sm font-semibold">{user.fullName}</span>
+              <LogoutButton />
+            </div>
+          )}
         </header>
         {children}
       </body>

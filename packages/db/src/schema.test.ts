@@ -62,7 +62,7 @@ describe("quote with offers", () => {
         userId: user.id,
         applicantName: "Ada Lovelace",
         applicantEmail: "ada@test.com",
-        address: "1 Solar Street, Berlin",
+        applicantAddress: "1 Solar Street, Berlin",
         monthlyConsumptionKwh: 400,
         systemSizeKw: "6.50",
         downPaymentCents: 0,

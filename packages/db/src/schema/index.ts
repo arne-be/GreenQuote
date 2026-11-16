@@ -46,7 +46,7 @@ export const quotes = pgTable(
       .references(() => users.id),
     applicantName: text().notNull(),
     applicantEmail: text().notNull(),
-    address: text().notNull(),
+    applicantAddress: text().notNull(),
     monthlyConsumptionKwh: integer().notNull(),
     systemSizeKw: numeric({ precision: 7, scale: 2 }).notNull(),
     downPaymentCents: integer().notNull(),

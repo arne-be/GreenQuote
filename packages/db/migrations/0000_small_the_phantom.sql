@@ -17,7 +17,7 @@ CREATE TABLE "quotes" (
 	"user_id" uuid NOT NULL,
 	"applicant_name" text NOT NULL,
 	"applicant_email" text NOT NULL,
-	"address" text NOT NULL,
+	"applicant_address" text NOT NULL,
 	"monthly_consumption_kwh" integer NOT NULL,
 	"system_size_kw" numeric(7, 2) NOT NULL,
 	"down_payment_cents" integer NOT NULL,

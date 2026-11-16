@@ -1,5 +1,5 @@
 {
-  "id": "cec99071-6d7a-4451-91fd-05d7cbeac39f",
+  "id": "8b84fa0d-845a-483f-b11b-97a2f77311f3",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -117,8 +117,8 @@
           "primaryKey": false,
           "notNull": true
         },
-        "address": {
-          "name": "address",
+        "applicant_address": {
+          "name": "applicant_address",
           "type": "text",
           "primaryKey": false,
           "notNull": true

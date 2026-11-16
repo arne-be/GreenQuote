@@ -34,6 +34,11 @@ is in `.claude/skills/ask-matt/SKILL.md`.
   - **Posted review**: run `code-review` on the PR and post its findings with
     `gh pr review <n> --comment --body-file <file>`. Re-run and re-post when
     later commits change the code.
+  - **Fix the findings**: fix every finding on the same branch, get CI green,
+    then re-run and re-post the review. Repeat until a review has nothing left
+    to fix, at most three rounds. A finding that needs the user's decision
+    (a trade-off, a conflict with an ADR or the issue, out-of-scope work) is
+    not fixed: list it for the user when handing over the PR.
   - **Go-ahead**: the user says in chat to merge that PR (GitHub cannot record
     an author's approval of their own PR). Without both, an agent stops at the
     open PR and reports its URL.

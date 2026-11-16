@@ -9,7 +9,6 @@ export const DOWN_PAYMENT_ABOVE_SYSTEM_PRICE =
   "The down payment cannot exceed the system price";
 
 // Bounds that keep values storable in the quote columns, not eligibility rules.
-
 const STORAGE_BOUNDS = {
   maxAddressLength: 300,
   maxMonthlyConsumptionKwh: 1_000_000,

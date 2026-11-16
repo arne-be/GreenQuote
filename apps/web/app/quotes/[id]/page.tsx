@@ -10,7 +10,11 @@ import {
   formatPercent,
 } from "@/lib/format";
 
-export default async function QuotePage({ params }: PageProps<"/quotes/[id]">) {
+export default async function QuotePage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
   const { id } = await params;
   const quote = await getQuote((await cookies()).toString(), id);
   if (quote === null) notFound();

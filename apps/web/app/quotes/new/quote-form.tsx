@@ -3,6 +3,7 @@
 import { type QuoteInput, quoteInputSchema } from "@greenquote/domain";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 
 import { Button } from "@/components/ui/button";
@@ -24,6 +25,8 @@ export function QuoteForm({
   email: string;
 }) {
   const router = useRouter();
+  // Stays true while the next page loads, so a second click cannot submit again.
+  const [isLeaving, setIsLeaving] = useState(false);
   const form = useForm({
     resolver: zodResolver(quoteInputSchema),
     defaultValues: {
@@ -40,6 +43,7 @@ export function QuoteForm({
     try {
       const quote = await createQuote(values);
       // Replace, so going back does not land on a form that resubmits.
+      setIsLeaving(true);
       router.replace(`/quotes/${quote.id}`);
     } catch (error) {
       let hasFieldError = false;
@@ -170,14 +174,18 @@ export function QuoteForm({
                 aria-invalid={fieldState.invalid}
               />
               <FieldDescription id="downPayment-description">
-                Optional. Paid upfront and not financed.
+                Optional. The amount you pay yourself upfront. It lowers the
+                amount you finance.
               </FieldDescription>
               <FieldError errors={[fieldState.error]} />
             </Field>
           )}
         />
         <FieldError errors={[form.formState.errors.root]} />
-        <Button type="submit" disabled={form.formState.isSubmitting}>
+        <Button
+          type="submit"
+          disabled={form.formState.isSubmitting || isLeaving}
+        >
           Request quote
         </Button>
       </FieldGroup>

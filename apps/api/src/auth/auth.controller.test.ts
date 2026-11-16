@@ -1,13 +1,9 @@
 import type { Server } from "node:http";
 
-import { createDb, type Db, migrateDb } from "@greenquote/db";
+import { startTestDb, type TestDb } from "@greenquote/db/testing";
 import type { INestApplication } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import { Test } from "@nestjs/testing";
-import {
-  PostgreSqlContainer,
-  type StartedPostgreSqlContainer,
-} from "@testcontainers/postgresql";
 import request from "supertest";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
@@ -15,27 +11,23 @@ import { AppModule } from "../app.module.js";
 import { configureApp } from "../configure-app.js";
 import { DATABASE } from "../database.module.js";
 
-let container: StartedPostgreSqlContainer;
-let db: Db;
+let testDb: TestDb;
 let app: INestApplication<Server>;
 
 beforeAll(async () => {
-  container = await new PostgreSqlContainer("postgres:17-alpine").start();
-  db = createDb(container.getConnectionUri());
-  await migrateDb(db);
+  testDb = await startTestDb();
   const moduleRef = await Test.createTestingModule({ imports: [AppModule] })
     .overrideProvider(DATABASE)
-    .useValue(db)
+    .useValue(testDb.db)
     .compile();
   app = moduleRef.createNestApplication({ bufferLogs: true });
   configureApp(app);
   await app.init();
-}, 120_000);
+});
 
 afterAll(async () => {
   await app.close();
-  await db.$client.end();
-  await container.stop();
+  await testDb.stop();
 });
 
 const register = (email: string, password = "correct horse") =>

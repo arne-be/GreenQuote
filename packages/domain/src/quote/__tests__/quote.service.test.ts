@@ -1,40 +1,21 @@
-import { createDb, type Db, migrateDb, users } from "@greenquote/db";
-import {
-  PostgreSqlContainer,
-  type StartedPostgreSqlContainer,
-} from "@testcontainers/postgresql";
+import { createUser, startTestDb, type TestDb } from "@greenquote/db/testing";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 import type { Actor } from "../../auth/auth.schema.ts";
 import { ValidationError } from "../../errors.ts";
 import { QuoteService } from "../quote.service.ts";
 
-let container: StartedPostgreSqlContainer;
-let db: Db;
+let testDb: TestDb;
 let quotes: QuoteService;
 let actor: Actor;
 
 beforeAll(async () => {
-  container = await new PostgreSqlContainer("postgres:17-alpine").start();
-  db = createDb(container.getConnectionUri());
-  await migrateDb(db);
-  quotes = new QuoteService(db);
-  const [user] = await db
-    .insert(users)
-    .values({
-      fullName: "Ada Lovelace",
-      email: "ada@test.com",
-      passwordHash: "not used",
-    })
-    .returning({ id: users.id, role: users.role });
-  if (user === undefined) throw new Error("Insert returned no user");
-  actor = user;
-}, 120_000);
-
-afterAll(async () => {
-  await db.$client.end();
-  await container.stop();
+  testDb = await startTestDb();
+  quotes = new QuoteService(testDb.db);
+  actor = await createUser(testDb.db);
 });
+
+afterAll(() => testDb.stop());
 
 describe("createQuote", () => {
   it("rejects a down payment above the system price on downPayment, even without the schema", async () => {

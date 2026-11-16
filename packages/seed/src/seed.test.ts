@@ -1,32 +1,25 @@
 import { execFileSync } from "node:child_process";
 
-import { createDb, type Db, migrateDb, quotes, users } from "@greenquote/db";
-import {
-  PostgreSqlContainer,
-  type StartedPostgreSqlContainer,
-} from "@testcontainers/postgresql";
+import { type Db, quotes, users } from "@greenquote/db";
+import { startTestDb, type TestDb } from "@greenquote/db/testing";
 import { sql } from "drizzle-orm";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 
 import { seed } from "./seed.ts";
 
-let container: StartedPostgreSqlContainer;
+let testDb: TestDb;
 let db: Db;
 
 beforeAll(async () => {
-  container = await new PostgreSqlContainer("postgres:17-alpine").start();
-  db = createDb(container.getConnectionUri());
-  await migrateDb(db);
-}, 120_000);
+  testDb = await startTestDb();
+  db = testDb.db;
+});
 
 beforeEach(async () => {
   await db.execute(sql`TRUNCATE users CASCADE`);
 });
 
-afterAll(async () => {
-  await db.$client.end();
-  await container.stop();
-});
+afterAll(() => testDb.stop());
 
 const adminPassword = "admin-password";
 const demoPassword = "demo-password";
@@ -37,7 +30,7 @@ describe("seed", () => {
     async (seedDemoData) => {
       const env = {
         ...process.env,
-        DATABASE_URL: container.getConnectionUri(),
+        DATABASE_URL: testDb.databaseUrl,
         SEED_ADMIN_PASSWORD: adminPassword,
         SEED_DEMO_PASSWORD: demoPassword,
         // Node leaves undefined variables out of the child's environment.

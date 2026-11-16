@@ -1,33 +1,28 @@
 "use client";
 
-import { registerSchema } from "@greenquote/domain";
+import { type RegisterInput, registerSchema } from "@greenquote/domain";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 
-import { Button } from "@/components/ui/button";
-import {
-  Field,
-  FieldDescription,
-  FieldError,
-  FieldGroup,
-  FieldLabel,
-} from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
+import { StepForm } from "@/components/step-form";
+import { TextField } from "@/components/text-field";
+import { FieldDescription } from "@/components/ui/field";
 import { ApiError, register } from "@/lib/api";
+
+import { registerSteps } from "./register-steps";
 
 export function RegisterForm() {
   const router = useRouter();
-  // Stays true while the next page loads, so a second click cannot submit again.
   const [isLeaving, setIsLeaving] = useState(false);
   const form = useForm({
     resolver: zodResolver(registerSchema),
     defaultValues: { fullName: "", email: "", password: "" },
   });
 
-  const handleSubmit = form.handleSubmit(async (values) => {
+  const handleSubmit = async (values: RegisterInput) => {
     try {
       await register(values);
       setIsLeaving(true);
@@ -35,81 +30,69 @@ export function RegisterForm() {
       router.refresh();
     } catch (error) {
       if (error instanceof ApiError && error.status === 409) {
-        form.setError("email", {
-          message: "This email is already registered. Sign in instead.",
-        });
+        // The step form goes back to the Email step to show this.
+        form.setError("email", { type: "taken" });
         return;
       }
       form.setError("root", {
         message: "Could not register you. Please try again.",
       });
     }
-  });
+  };
 
   return (
-    <form noValidate onSubmit={(event) => void handleSubmit(event)}>
-      <FieldGroup>
-        <Controller
-          control={form.control}
-          name="fullName"
-          render={({ field, fieldState }) => (
-            <Field data-invalid={fieldState.invalid}>
-              <FieldLabel htmlFor="fullName">Full name</FieldLabel>
-              <Input
-                {...field}
-                id="fullName"
+    <div className="flex flex-col gap-7">
+      <StepForm
+        form={form}
+        steps={registerSteps}
+        submitLabel="Create account"
+        isLeaving={isLeaving}
+        onSubmit={handleSubmit}
+      >
+        {(step) =>
+          ({
+            name: (
+              <TextField
+                control={form.control}
+                name="fullName"
+                label="Full name"
                 autoComplete="name"
-                aria-invalid={fieldState.invalid}
               />
-              <FieldError errors={[fieldState.error]} />
-            </Field>
-          )}
-        />
-        <Controller
-          control={form.control}
-          name="email"
-          render={({ field, fieldState }) => (
-            <Field data-invalid={fieldState.invalid}>
-              <FieldLabel htmlFor="email">Email</FieldLabel>
-              <Input
-                {...field}
-                id="email"
+            ),
+            email: (
+              <TextField
+                control={form.control}
+                name="email"
+                label="Email"
                 type="email"
                 autoComplete="email"
-                aria-invalid={fieldState.invalid}
+                error={
+                  form.formState.errors.email?.type === "taken" && (
+                    <>
+                      An account with this email already exists.{" "}
+                      <Link href="/login" className="underline">
+                        Sign in
+                      </Link>
+                    </>
+                  )
+                }
               />
-              <FieldError errors={[fieldState.error]} />
-            </Field>
-          )}
-        />
-        <Controller
-          control={form.control}
-          name="password"
-          render={({ field, fieldState }) => (
-            <Field data-invalid={fieldState.invalid}>
-              <FieldLabel htmlFor="password">Password</FieldLabel>
-              <Input
-                {...field}
-                id="password"
+            ),
+            password: (
+              <TextField
+                control={form.control}
+                name="password"
+                label="Password"
                 type="password"
                 autoComplete="new-password"
-                aria-invalid={fieldState.invalid}
               />
-              <FieldError errors={[fieldState.error]} />
-            </Field>
-          )}
-        />
-        <FieldError errors={[form.formState.errors.root]} />
-        <Button
-          type="submit"
-          disabled={form.formState.isSubmitting || isLeaving}
-        >
-          Register
-        </Button>
-        <FieldDescription>
-          Already registered? <Link href="/login">Sign in</Link>
-        </FieldDescription>
-      </FieldGroup>
-    </form>
+            ),
+          })[step.id]
+        }
+      </StepForm>
+      <FieldDescription>
+        Already registered? <Link href="/login">Sign in</Link>
+      </FieldDescription>
+    </div>
   );
 }

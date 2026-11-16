@@ -16,4 +16,4 @@ Once done, call the Skill tool with "code-review" to review the work.
 
 Commit your work to the current branch.
 
-When you open the PR, post the `code-review` findings on it and stop for the user's go-ahead, as `CLAUDE.md`'s Ship step describes.
+When you open the PR, post that review (run it again first if you changed anything since) as the first of the review loop (`docs/agents/review-loop.md`), continue the loop, and stop for the user's go-ahead.

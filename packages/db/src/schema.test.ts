@@ -1,38 +1,16 @@
-import { execFileSync } from "node:child_process";
-
 import { eq } from "drizzle-orm";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
-import { offers, quotes, users } from "./schema/index.js";
+import { offers, quotes } from "./schema/index.js";
 import { createUser, startTestDb, type TestDb } from "./testing.js";
 
 let testDb: TestDb;
-
-const runScript = (script: string) =>
-  execFileSync("pnpm", ["exec", "tsx", script], {
-    env: {
-      ...process.env,
-      DATABASE_URL: testDb.databaseUrl,
-      SEED_ADMIN_PASSWORD: "test-admin-password",
-    },
-  });
 
 beforeAll(async () => {
   testDb = await startTestDb();
 });
 
 afterAll(() => testDb.stop());
-
-describe("seed", () => {
-  it("leaves one admin when run twice", () => {
-    runScript("src/seed.ts");
-    runScript("src/seed.ts");
-
-    return expect(
-      testDb.db.select().from(users).where(eq(users.role, "admin")),
-    ).resolves.toMatchObject([{ email: "admin@test.com" }]);
-  });
-});
 
 describe("quote with offers", () => {
   it("is read back with its three offers", async () => {

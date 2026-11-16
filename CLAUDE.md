@@ -28,15 +28,11 @@ is in `.claude/skills/ask-matt/SKILL.md`.
 - **Build**: `implement` per ticket (test-first with `tdd`, closed by
   `code-review`), or `implement-spec` for a whole spec.
 - **Ship**: one branch per change off `main`, a PR whose body follows `pr`,
-  a posted review, the user's go-ahead, then a squash merge
-  (`gh pr merge --squash`). The PR title becomes the squash commit, so it is a
-  Conventional Commit. GitHub deletes the branch.
-  - **Posted review**: run `code-review` on the PR and post its findings with
-    `gh pr review <n> --comment --body-file <file>`. Re-run and re-post when
-    later commits change the code.
-  - **Go-ahead**: the user says in chat to merge that PR (GitHub cannot record
-    an author's approval of their own PR). Without both, an agent stops at the
-    open PR and reports its URL.
+  the review loop (`docs/agents/review-loop.md`: post a `code-review`, fix its
+  findings, repeat), the user's go-ahead in chat, then a squash merge
+  (`gh pr merge --squash`). Until the loop has ended and the user says to
+  merge, an agent stops at the open PR. The PR title becomes the squash commit,
+  so it is a Conventional Commit. GitHub deletes the branch.
 
 ## Layout
 
@@ -46,8 +42,10 @@ is in `.claude/skills/ask-matt/SKILL.md`.
   mapping. All business logic lives in `@greenquote/domain`.
 - **packages/domain**: framework-free business logic: pure calculations,
   services, Zod schemas shared by web and api, typed domain errors.
-- **packages/db**: Drizzle schema, migrations, seed. The TypeScript schema is the
+- **packages/db**: Drizzle schema and migrations. The TypeScript schema is the
   source of truth.
+- **packages/seed**: `pnpm db:seed`: the admin, plus demo users and quotes
+  (through domain services) when `SEED_DEMO_DATA=true`.
 - **packages/config**: shared ESLint and tsconfig presets.
 - **docs/adr/**: decisions that are hard to reverse. **GLOSSARY.md**: every
   domain word and what it means; read it before naming anything.
@@ -56,6 +54,7 @@ is in `.claude/skills/ask-matt/SKILL.md`.
 
 ```bash
 pnpm install
+docker compose up --build # full stack: db, migrate + seed, api, web on :3000
 docker compose up -d db   # Postgres
 pnpm db:migrate && pnpm db:seed
 pnpm dev                  # all apps via turbo

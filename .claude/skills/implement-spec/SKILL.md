@@ -35,8 +35,8 @@ Communication to and from subagents should be sparse. Communicate primarily thro
 
 6. If this changes the **frontier** of available tickets, kick off more **implementer subagents** to work on the new tickets. This allows for maximum concurrency.
 
-7. Once all tickets are complete, call the Skill tool with `code-review` on the integration branch. Fix all issues raised by the code review in a single fresh **implementer subagent**.
+7. Once all tickets are complete, run the review loop (`docs/agents/review-loop.md`) over the integration branch, with a fresh **implementer subagent** for each round of fixes. Post each review on the draft PR if one exists.
 
-8. If a draft PR exists, run `code-review` again on the fixed integration branch, post it on the PR and mark the PR ready for review, as `CLAUDE.md`'s Ship step describes; do not merge it. Otherwise, resolve each ticket the way the issue tracker closes work, and report the integration branch.
+8. If a draft PR exists, mark it ready for review and hand it to the user without merging. Otherwise, resolve each ticket the way the issue tracker closes work, and report the integration branch.
 
 9. Clean up all **implementer subagent** worktrees.

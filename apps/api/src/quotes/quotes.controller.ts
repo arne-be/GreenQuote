@@ -2,6 +2,9 @@ import {
   type Actor,
   type Quote,
   quoteInputSchema,
+  type QuoteList,
+  quoteListQuerySchema,
+  quoteListSchema,
   quoteSchema,
 } from "@greenquote/domain";
 import {
@@ -11,6 +14,7 @@ import {
   Param,
   ParseUUIDPipe,
   Post,
+  Query,
 } from "@nestjs/common";
 import {
   ApiBadRequestResponse,
@@ -18,6 +22,7 @@ import {
   ApiCreatedResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
+  ApiOperation,
   ApiParam,
   ApiTags,
   ApiUnauthorizedResponse,
@@ -25,17 +30,45 @@ import {
 import { createZodDto } from "nestjs-zod";
 
 import { CurrentUser } from "../auth/current-user.decorator.js";
+import { QuoteListService } from "./quote-list.service.js";
 import { QuotesService } from "./quotes.service.js";
 
 class QuoteInputDto extends createZodDto(quoteInputSchema) {}
 class QuoteDto extends createZodDto(quoteSchema) {}
+class QuoteListQueryDto extends createZodDto(quoteListQuerySchema) {}
+class QuoteListDto extends createZodDto(quoteListSchema) {}
 
 @ApiTags("quotes")
 @ApiCookieAuth()
 @ApiUnauthorizedResponse({ description: "No valid session" })
 @Controller("quotes")
 export class QuotesController {
-  constructor(private readonly quotes: QuotesService) {}
+  constructor(
+    private readonly quotes: QuotesService,
+    private readonly quoteList: QuoteListService,
+  ) {}
+
+  @Get()
+  @ApiOperation({
+    summary: "List quotes",
+    description:
+      "Scoped by role: a user gets only their own quotes, an admin gets every quote. " +
+      "Newest first. `q` matches the requesting user's and the applicant's name and email, ignoring case.",
+  })
+  @ApiOkResponse({
+    type: QuoteListDto,
+    description: "One page of quotes and the total number that match",
+  })
+  @ApiBadRequestResponse({
+    description:
+      "q longer than 100 characters, limit outside 1–100 or a negative offset",
+  })
+  findAll(
+    @CurrentUser() actor: Actor,
+    @Query() query: QuoteListQueryDto,
+  ): Promise<QuoteList> {
+    return this.quoteList.listQuotes(actor, query);
+  }
 
   @Post()
   @ApiCreatedResponse({

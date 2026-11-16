@@ -1,6 +1,7 @@
 import type { Server } from "node:http";
 
 import { createDb, type Db, migrateDb } from "@greenquote/db";
+import type { QuoteList } from "@greenquote/domain";
 import type { INestApplication } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import { Test } from "@nestjs/testing";
@@ -185,6 +186,61 @@ describe("GET /api/quotes/:id", () => {
       .get("/api/quotes/not-a-uuid")
       .set("Cookie", cookie)
       .expect(400);
+  });
+});
+
+describe("GET /api/quotes", () => {
+  const listQuotes = (cookie: string, query = "") =>
+    request(app.getHttpServer())
+      .get(`/api/quotes${query}`)
+      .set("Cookie", cookie);
+
+  it("rejects a request without a session with 401", async () => {
+    await request(app.getHttpServer()).get("/api/quotes").expect(401);
+  });
+
+  it("rejects a limit or offset out of range with 400", async () => {
+    const cookie = await signIn("bad-query@test.com");
+    for (const query of ["?limit=0", "?limit=101", "?offset=-1", "?limit=a"]) {
+      await listQuotes(cookie, query).expect(400);
+    }
+  });
+
+  it("shows a user only their own quotes and an admin everyone's", async () => {
+    const first = await signIn("lister-one@test.com");
+    const second = await signIn("lister-two@test.com");
+    await requestQuote(first).expect(201);
+    await requestQuote(first).expect(201);
+    await requestQuote(second).expect(201);
+    const { body: adminUser } = (await request(app.getHttpServer())
+      .post("/api/auth/register")
+      .send({
+        fullName: "List Admin",
+        email: "list-admin@test.com",
+        password: "correct horse",
+      })
+      .expect(201)) as { body: { id: string } };
+    const token = await app
+      .get(JwtService)
+      .signAsync({ sub: adminUser.id, role: "admin" });
+
+    const own = (await listQuotes(first).expect(200)) as { body: QuoteList };
+    const everyone = (await listQuotes(`session=${token}`, "?limit=100").expect(
+      200,
+    )) as { body: QuoteList };
+    const searched = await listQuotes(`session=${token}`, "?q=lister-").expect(
+      200,
+    );
+
+    expect(own.body.total).toBe(2);
+    expect(own.body.items.map((item) => item.user.email)).toEqual([
+      "lister-one@test.com",
+      "lister-one@test.com",
+    ]);
+    expect(everyone.body.items.map((item) => item.user.email)).toEqual(
+      expect.arrayContaining(["lister-one@test.com", "lister-two@test.com"]),
+    );
+    expect(searched.body).toMatchObject({ total: 3 });
   });
 });
 

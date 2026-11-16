@@ -55,5 +55,7 @@ test("a new user requests a quote once, even clicking submit twice, and sees the
   await expect(
     page.getByRole("columnheader", { name: "Applicant" }),
   ).toBeVisible();
-  await expect(page.getByRole("cell", { name: /Erika Example/ })).toBeVisible();
+  await expect(
+    page.getByRole("table").getByText("Erika Example", { exact: true }),
+  ).toBeVisible();
 });

@@ -183,9 +183,16 @@ The endpoints, authentication and error responses are described in
 - A `pricing_rules` table instead of constants, so prices and APRs change without a
   deploy (ADR 0002).
 - Cursor pagination instead of `limit`/`offset`.
-- Address autocomplete and server-side Address Validation. Under GDPR this
-  needs a legal basis and a processor agreement, because the addresses go to
-  Google.
+- Address autofill: autocomplete while typing, plus server-side Address
+  Validation. Under GDPR this needs a legal basis and a processor agreement,
+  because the addresses go to Google.
+- A recommended system size worked out from the monthly consumption, so the
+  applicant starts from a sensible size instead of guessing one.
+- Estimated monthly savings on the electricity bill from the system size, shown
+  next to each offer's monthly payment, so the applicant sees what the system
+  costs them net of what it saves.
+- More assets than solar panels, such as a battery storage system, each with its
+  own recommended size and price in the quote.
 - Email verification.
 - A `pg_trgm` index for the `q` search ([#34](https://github.com/arne-be/GreenQuote/issues/34)).
 

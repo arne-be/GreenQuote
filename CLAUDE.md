@@ -39,12 +39,13 @@ is in `.claude/skills/ask-matt/SKILL.md`.
     nothing to fix, or after the third review. Hand these to the user instead,
     each with a one-line reason: findings still open after the third review,
     findings that need a decision (a trade-off, a judgement-call smell, a
-    conflict with an ADR or the issue), and findings you think are wrong.
-    File out-of-scope findings as issues and link them.
+    conflict with an ADR or the issue), findings you think are wrong, and a CI
+    failure you cannot fix. File out-of-scope findings as issues and link them
+    in the hand-over.
   - **Go-ahead**: the user says in chat to merge that PR (GitHub cannot record
-    an author's approval of their own PR). Until the PR has a posted review and
-    the go-ahead, an agent stops at the open PR and reports its URL with the
-    handed-over findings.
+    an author's approval of their own PR). Until the review-and-fix loop has
+    ended and the user gives the go-ahead, an agent stops at the open PR and
+    reports its URL with the handed-over findings.
 
 ## Layout
 

@@ -52,4 +52,11 @@ test("a new user requests a quote once, even clicking submit twice, and sees the
   await expect(page.getByRole("table")).toHaveAccessibleName(
     "Quotes: 1–1 of 1",
   );
+  await expect(
+    page.getByRole("columnheader", { name: "Applicant" }),
+  ).toBeVisible();
+  // The applicant cell holds the name and email; the "View" link also mentions the name.
+  await expect(page.getByRole("cell").filter({ hasText: email })).toContainText(
+    "Erika Example",
+  );
 });

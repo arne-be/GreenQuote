@@ -93,8 +93,12 @@ export function StepForm<
     const following = steps[index + 1];
     if (!following || isAdvancing.current) return;
     isAdvancing.current = true;
-    const isValid = await form.trigger(step.fields);
-    isAdvancing.current = false;
+    let isValid: boolean;
+    try {
+      isValid = await form.trigger(step.fields);
+    } finally {
+      isAdvancing.current = false;
+    }
     if (!isValid) return;
     reached.current = Math.max(reached.current, index + 1);
     window.history.pushState(null, "", `?step=${following.id}`);

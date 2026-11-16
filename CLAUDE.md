@@ -28,20 +28,23 @@ is in `.claude/skills/ask-matt/SKILL.md`.
 - **Build**: `implement` per ticket (test-first with `tdd`, closed by
   `code-review`), or `implement-spec` for a whole spec.
 - **Ship**: one branch per change off `main`, a PR whose body follows `pr`,
-  a posted review, the user's go-ahead, then a squash merge
-  (`gh pr merge --squash`). The PR title becomes the squash commit, so it is a
-  Conventional Commit. GitHub deletes the branch.
+  a posted review, its findings fixed, the user's go-ahead, then a squash
+  merge (`gh pr merge --squash`). The PR title becomes the squash commit, so
+  it is a Conventional Commit. GitHub deletes the branch.
   - **Posted review**: run `code-review` on the PR and post its findings with
-    `gh pr review <n> --comment --body-file <file>`. Re-run and re-post when
-    later commits change the code.
-  - **Fix the findings**: fix every finding on the same branch, get CI green,
-    then re-run and re-post the review. Repeat until a review has nothing left
-    to fix, at most three rounds. A finding that needs the user's decision
-    (a trade-off, a conflict with an ADR or the issue, out-of-scope work) is
-    not fixed: list it for the user when handing over the PR.
+    `gh pr review <n> --comment --body-file <file>`. Run and post it again
+    whenever later commits change the code.
+  - **Findings fixed**: fix each finding on the same branch and get CI green;
+    that change triggers the next posted review. Stop when a review leaves
+    nothing to fix, or after the third review. Hand these to the user instead,
+    each with a one-line reason: findings still open after the third review,
+    findings that need a decision (a trade-off, a judgement-call smell, a
+    conflict with an ADR or the issue), and findings you think are wrong.
+    File out-of-scope findings as issues and link them.
   - **Go-ahead**: the user says in chat to merge that PR (GitHub cannot record
-    an author's approval of their own PR). Without both, an agent stops at the
-    open PR and reports its URL.
+    an author's approval of their own PR). Until the PR has a posted review and
+    the go-ahead, an agent stops at the open PR and reports its URL with the
+    handed-over findings.
 
 ## Layout
 

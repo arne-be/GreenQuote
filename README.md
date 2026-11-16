@@ -39,7 +39,8 @@ so the Swagger UI is at <http://localhost:3000/api/docs>.
 
 ## Request a quote
 
-1. Sign in, or register on `/register`. You land on `/quotes`.
+1. Sign in, and you land on `/quotes`. A new user who registers on
+   `/register` goes straight to the quote form.
 2. Choose **Request a quote**. The applicant's name and email start as your
    own; change them when the quote is for someone else. Fill in the address,
    the monthly consumption in kWh and the system size in kW. The down payment
@@ -47,15 +48,11 @@ so the Swagger UI is at <http://localhost:3000/api/docs>.
 3. Submit. The quote page shows the system price, the risk band, the APR and
    one offer per term with its monthly payment.
 
-How the result is computed, from
-[pricing-rules.ts](packages/domain/src/pricing/pricing-rules.ts):
-
-- System price: 1,200 € per kW.
-- Risk band A: at least 400 kWh a month and at most 6 kW. Band B: at least
-  250 kWh a month. Anything else is band C.
-- APR: 6.9 % for A, 8.9 % for B, 11.9 % for C.
-- Offers: 5, 10 and 15 years, each a fixed monthly payment on the principal
-  (system price minus down payment).
+The system price follows from the system size. The risk band follows from the
+monthly consumption and the system size, and sets the APR. Each offer is a
+fixed monthly payment on the principal (system price minus down payment). The
+price per kW, the band thresholds, the APRs and the terms are in
+[pricing-rules.ts](packages/domain/src/pricing/pricing-rules.ts).
 
 `/quotes` lists your own quotes, newest first, 20 per page. Admins also get
 **All quotes** (`/admin/quotes`), which lists every user's quotes and searches
@@ -153,7 +150,7 @@ The endpoints, authentication and error responses are described in
 
 - An admin's `/quotes` page shows every quote, not only the admin's own. One
   list endpoint scoped by role is simpler than a separate admin resource
-  (ADR 0003); a `userId` filter would bring back "my quotes" for admins.
+  (ADR 0003).
 - The upper limits on quote inputs are storage bounds that keep values inside
   their database columns. They are not business rules about which systems are
   sensible.
@@ -164,7 +161,7 @@ The endpoints, authentication and error responses are described in
 ## What I'd do next
 
 - Token revocation or server-side sessions (ADR 0001).
-- A `pricing_rules` table instead of constants, so rates change without a
+- A `pricing_rules` table instead of constants, so prices and APRs change without a
   deploy (ADR 0002).
 - Cursor pagination ([Google AIP-158](https://google.aip.dev/158)) instead of
   `limit`/`offset`.

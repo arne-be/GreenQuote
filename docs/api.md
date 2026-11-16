@@ -41,7 +41,6 @@ Every error body has `statusCode` and `message`:
 | ------ | ------------------------------------------------------------------------- |
 | 400    | The body or query fails its Zod schema, or a path id is not a UUID        |
 | 401    | No valid session, or wrong email or password                              |
-| 403    | Mapped from `ForbiddenError`; no endpoint returns it today                |
 | 404    | The resource does not exist, or the caller may not see it                 |
 | 409    | The resource conflicts with an existing one (an email already registered) |
 | 500    | Anything unexpected; the message is always `Internal server error`        |
@@ -63,14 +62,16 @@ field it is about:
 }
 ```
 
-A rule the domain checks itself, such as a down payment above the system
-price, uses the same `errors` shape. A path id that is not a UUID gets Nest's
+When the domain service rejects an input itself, `errors` holds `{ path,
+message }` without `code`. (A down payment above the system price is normally
+caught by the schema first; the service check is the fallback.) A path id that is not a UUID gets Nest's
 own body instead: `{ "statusCode": 400, "message": "Validation failed (uuid is
 expected)", "error": "Bad Request" }`.
 
 The domain throws typed errors (`ValidationError`, `UnauthorisedError`,
 `ForbiddenError`, `NotFoundError`, `ConflictError`) and
-`DomainExceptionFilter` maps them to the statuses above. Unexpected errors are
+`DomainExceptionFilter` maps them to the statuses above (`ForbiddenError` to
+403, which no endpoint uses yet). Unexpected errors are
 logged and their details never reach the client.
 
 ## Endpoints
@@ -136,8 +137,8 @@ quote; the applicant can be someone else.
 | `systemSizeKw`          | above 0, at most 10,000, at most 2 decimals                       |
 | `downPayment`           | optional; 0 or more, at most 2 decimals, at most the system price |
 
-Numbers may also be sent as strings (the web form does). The upper bounds keep
-values inside their database columns; they are not eligibility rules.
+Numbers may also be sent as strings (the web form does). The upper bounds are
+storage bounds (see the README trade-offs).
 
 #### The quote
 

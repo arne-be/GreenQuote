@@ -43,6 +43,11 @@ export default async function RootLayout({
           </Link>
           {user !== null && (
             <div className="flex items-center gap-4">
+              {user.role === "admin" && (
+                <Link href="/admin/quotes" className="text-sm font-semibold">
+                  All quotes
+                </Link>
+              )}
               <span className="text-sm font-semibold">{user.fullName}</span>
               <LogoutButton />
             </div>

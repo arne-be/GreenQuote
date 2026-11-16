@@ -27,7 +27,7 @@ export function LoginForm() {
   const handleSubmit = form.handleSubmit(async (values) => {
     try {
       await login(values);
-      router.push("/quotes/new");
+      router.push("/quotes");
       router.refresh();
     } catch (error) {
       form.setError("root", {

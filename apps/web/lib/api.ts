@@ -2,6 +2,9 @@ import {
   type LoginInput,
   type Quote,
   type QuoteInput,
+  type QuoteList,
+  type QuoteListQuery,
+  quoteListSchema,
   quoteSchema,
   type RegisterInput,
   type User,
@@ -64,6 +67,26 @@ export async function getQuote(
     throw new ApiError(response.status, "GET /api/quotes/:id failed");
   }
   return quoteSchema.parse(await response.json());
+}
+
+/** One page of the quotes the API lets this user see. Server only, like getCurrentUser. */
+export async function listQuotes(
+  cookie: string,
+  { q, limit, offset }: QuoteListQuery,
+): Promise<QuoteList> {
+  const params = new URLSearchParams({
+    limit: String(limit),
+    offset: String(offset),
+  });
+  if (q) params.set("q", q);
+  const response = await fetch(`${env.API_URL}/api/quotes?${params}`, {
+    headers: { cookie },
+    cache: "no-store",
+  });
+  if (!response.ok) {
+    throw new ApiError(response.status, "GET /api/quotes failed");
+  }
+  return quoteListSchema.parse(await response.json());
 }
 
 export async function createQuote(input: QuoteInput): Promise<Quote> {

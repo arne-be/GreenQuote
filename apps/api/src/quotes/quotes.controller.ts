@@ -1,7 +1,11 @@
 import {
   type Actor,
+  MAX_QUOTE_PAGE_SIZE,
   type Quote,
   quoteInputSchema,
+  type QuoteList,
+  quoteListQuerySchema,
+  quoteListSchema,
   quoteSchema,
 } from "@greenquote/domain";
 import {
@@ -11,6 +15,7 @@ import {
   Param,
   ParseUUIDPipe,
   Post,
+  Query,
 } from "@nestjs/common";
 import {
   ApiBadRequestResponse,
@@ -18,6 +23,7 @@ import {
   ApiCreatedResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
+  ApiOperation,
   ApiParam,
   ApiTags,
   ApiUnauthorizedResponse,
@@ -29,6 +35,8 @@ import { QuotesService } from "./quotes.service.js";
 
 class QuoteInputDto extends createZodDto(quoteInputSchema) {}
 class QuoteDto extends createZodDto(quoteSchema) {}
+class QuoteListQueryDto extends createZodDto(quoteListQuerySchema) {}
+class QuoteListDto extends createZodDto(quoteListSchema) {}
 
 @ApiTags("quotes")
 @ApiCookieAuth()
@@ -36,6 +44,27 @@ class QuoteDto extends createZodDto(quoteSchema) {}
 @Controller("quotes")
 export class QuotesController {
   constructor(private readonly quotes: QuotesService) {}
+
+  @Get()
+  @ApiOperation({
+    summary: "List quotes",
+    description:
+      "Scoped by role: a user gets only their own quotes, an admin gets every quote. " +
+      "Newest first. `q` matches the requesting user's and the applicant's name and email, ignoring case.",
+  })
+  @ApiOkResponse({
+    type: QuoteListDto,
+    description: "One page of quotes and the total number that match",
+  })
+  @ApiBadRequestResponse({
+    description: `q longer than 100 characters, limit outside 1–${MAX_QUOTE_PAGE_SIZE} or a negative offset`,
+  })
+  findAll(
+    @CurrentUser() actor: Actor,
+    @Query() query: QuoteListQueryDto,
+  ): Promise<QuoteList> {
+    return this.quotes.listQuotes(actor, query);
+  }
 
   @Post()
   @ApiCreatedResponse({

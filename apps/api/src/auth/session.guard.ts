@@ -1,4 +1,8 @@
-import { UnauthorisedError, userSchema } from "@greenquote/domain";
+import {
+  SESSION_COOKIE,
+  UnauthorisedError,
+  userSchema,
+} from "@greenquote/domain";
 import {
   type CanActivate,
   type ExecutionContext,
@@ -9,7 +13,7 @@ import { JwtService } from "@nestjs/jwt";
 import { z } from "zod";
 
 import { IS_PUBLIC } from "./public.decorator.js";
-import { SESSION_COOKIE, type SessionRequest } from "./session.js";
+import type { SessionRequest } from "./session.js";
 
 const sessionPayloadSchema = z.object({
   sub: z.uuid(),

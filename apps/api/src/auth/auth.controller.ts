@@ -2,6 +2,7 @@ import {
   type Actor,
   loginSchema,
   registerSchema,
+  SESSION_COOKIE,
   type User,
   userSchema,
 } from "@greenquote/domain";
@@ -25,7 +26,7 @@ import type { Env } from "../config/env.js";
 import { AuthService } from "./auth.service.js";
 import { CurrentUser } from "./current-user.decorator.js";
 import { Public } from "./public.decorator.js";
-import { SESSION_COOKIE, SESSION_TTL_SECONDS } from "./session.js";
+import { SESSION_TTL_SECONDS } from "./session.js";
 
 class RegisterDto extends createZodDto(registerSchema) {}
 class LoginDto extends createZodDto(loginSchema) {}

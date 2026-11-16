@@ -16,4 +16,4 @@ Once done, call the Skill tool with "code-review" to review the work.
 
 Commit your work to the current branch.
 
-When you open the PR, post the `code-review` findings on it (`gh pr review <n> --comment --body-file <file>`). Do not merge: the human reviews every PR and gives the go-ahead (see `CLAUDE.md`, Workflow).
+When you open the PR, post the `code-review` findings on it and stop for the user's go-ahead, as `CLAUDE.md`'s Ship step describes.

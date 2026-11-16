@@ -1,17 +1,23 @@
 import { describe, expect, it } from "vitest";
 
-import { formatDate, formatKw, formatMoney, formatPercent } from "./format";
+import {
+  formatDate,
+  formatKw,
+  formatKwh,
+  formatMoney,
+  formatPercent,
+} from "./format";
 
 // Intl puts a no-break space between number and unit.
 const nbsp = " ";
 
 describe("formatMoney", () => {
   it("drops cents on whole euros", () => {
-    expect(formatMoney(780_000)).toBe(`7.800${nbsp}€`);
+    expect(formatMoney(7800)).toBe(`7.800${nbsp}€`);
   });
 
   it("shows cents otherwise", () => {
-    expect(formatMoney(12_350)).toBe(`123,50${nbsp}€`);
+    expect(formatMoney(123.5)).toBe(`123,50${nbsp}€`);
   });
 });
 
@@ -28,6 +34,12 @@ describe("formatPercent", () => {
 describe("formatKw", () => {
   it("formats system size in kW", () => {
     expect(formatKw(6.5)).toBe(`6,5${nbsp}kW`);
+  });
+});
+
+describe("formatKwh", () => {
+  it("formats monthly consumption in kWh with a thousands separator", () => {
+    expect(formatKwh(1200)).toBe(`1.200${nbsp}kWh`);
   });
 });
 

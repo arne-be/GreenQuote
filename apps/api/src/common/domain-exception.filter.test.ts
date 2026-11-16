@@ -18,6 +18,7 @@ import { DomainExceptionFilter } from "./domain-exception.filter.js";
 
 const errors: Record<string, Error> = {
   validation: new ValidationError("bad input"),
+  "field-validation": new ValidationError("too high", ["downPayment"]),
   unauthorised: new UnauthorisedError("no session"),
   forbidden: new ForbiddenError("not yours"),
   "not-found": new NotFoundError("missing"),
@@ -62,5 +63,15 @@ describe("DomainExceptionFilter", () => {
     await request(app.getHttpServer())
       .get(`/${kind}`)
       .expect(statusCode, { statusCode, message });
+  });
+
+  it("lists the field of a validation error the way the Zod pipe does", async () => {
+    await request(app.getHttpServer())
+      .get("/field-validation")
+      .expect(400, {
+        statusCode: 400,
+        message: "too high",
+        errors: [{ path: ["downPayment"], message: "too high" }],
+      });
   });
 });

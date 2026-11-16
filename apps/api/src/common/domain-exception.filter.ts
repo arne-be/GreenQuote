@@ -33,6 +33,13 @@ export class DomainExceptionFilter extends BaseExceptionFilter {
       .switchToHttp()
       .getResponse<Response>()
       .status(status)
-      .json({ statusCode: status, message: exception.message });
+      .json({
+        statusCode: status,
+        message: exception.message,
+        // Same shape as the Zod pipe's field errors, so clients handle both alike.
+        ...(exception instanceof ValidationError && exception.path
+          ? { errors: [{ path: exception.path, message: exception.message }] }
+          : {}),
+      });
   }
 }

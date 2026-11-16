@@ -2,6 +2,9 @@
   "name": "@greenquote/domain",
   "private": true,
   "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
   "scripts": {
     "lint": "eslint . --max-warnings=0",
     "types": "tsc --noEmit",

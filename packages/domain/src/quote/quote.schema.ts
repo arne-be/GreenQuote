@@ -6,6 +6,9 @@ import { eurosToCents } from "../money.ts";
 import { calculateSystemPriceCents } from "../pricing/pricing.ts";
 
 // Bounds that keep values storable in the quote columns, not eligibility rules.
+export const DOWN_PAYMENT_ABOVE_SYSTEM_PRICE =
+  "The down payment cannot exceed the system price";
+
 const STORAGE_BOUNDS = {
   maxAddressLength: 300,
   maxMonthlyConsumptionKwh: 1_000_000,
@@ -50,7 +53,7 @@ export const quoteInputSchema = z
       eurosToCents(downPayment) <= calculateSystemPriceCents(systemSizeKw),
     {
       path: ["downPayment"],
-      message: "The down payment cannot exceed the system price",
+      message: DOWN_PAYMENT_ABOVE_SYSTEM_PRICE,
       // Without a valid system size there is no price to compare against.
       when: ({ issues }) => issues.length === 0,
     },

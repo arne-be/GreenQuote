@@ -2,10 +2,14 @@ import { type Db, offers, quotes } from "@greenquote/db";
 import { and, eq } from "drizzle-orm";
 
 import type { Actor } from "../auth/auth.schema.ts";
-import { NotFoundError } from "../errors.ts";
+import { NotFoundError, ValidationError } from "../errors.ts";
 import { centsToEuros, eurosToCents } from "../money.ts";
 import { calculateQuoteResult } from "../pricing/pricing.ts";
-import type { Quote, QuoteInput } from "./quote.schema.ts";
+import {
+  DOWN_PAYMENT_ABOVE_SYSTEM_PRICE,
+  type Quote,
+  type QuoteInput,
+} from "./quote.schema.ts";
 
 type QuoteRow = typeof quotes.$inferSelect;
 type OfferRow = typeof offers.$inferSelect;
@@ -20,6 +24,12 @@ export class QuoteService {
       monthlyConsumptionKwh: input.monthlyConsumptionKwh,
       downPaymentCents,
     });
+    // The schema checks this too, for the form; the service does not rely on its callers.
+    if (result.principalCents < 0) {
+      throw new ValidationError(DOWN_PAYMENT_ABOVE_SYSTEM_PRICE, [
+        "downPayment",
+      ]);
+    }
     return this.db.transaction(async (tx) => {
       const [quote] = await tx
         .insert(quotes)

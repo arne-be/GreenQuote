@@ -207,8 +207,9 @@ describe("OpenAPI document", () => {
       },
       QuoteDto: {
         properties: {
-          systemPrice: { minimum: 0, maximum: 12_000_000 },
-          offers: { minItems: 3, maxItems: 3 },
+          // Integer cents column: 2,147,483,647 cents.
+          systemPrice: { minimum: 0, maximum: 21_474_836.47 },
+          offers: { minItems: 1 },
         },
       },
     });

@@ -447,7 +447,7 @@
                   "value": {
                     "fullName": "Ada Lovelace",
                     "email": "ada@test.com",
-                    "address": "12 St James Square, London",
+                    "address": "Hauptstraße 12, 10115 Berlin",
                     "monthlyConsumptionKwh": 450,
                     "systemSizeKw": 5,
                     "downPayment": 1000
@@ -470,7 +470,7 @@
                   "createdAt": "2026-11-16T19:50:30.522Z",
                   "fullName": "Ada Lovelace",
                   "email": "ada@test.com",
-                  "address": "12 St James Square, London",
+                  "address": "Hauptstraße 12, 10115 Berlin",
                   "monthlyConsumptionKwh": 450,
                   "systemSizeKw": 5,
                   "downPayment": 1000,
@@ -594,7 +594,7 @@
                   "createdAt": "2026-11-16T19:50:30.522Z",
                   "fullName": "Ada Lovelace",
                   "email": "ada@test.com",
-                  "address": "12 St James Square, London",
+                  "address": "Hauptstraße 12, 10115 Berlin",
                   "monthlyConsumptionKwh": 450,
                   "systemSizeKw": 5,
                   "downPayment": 1000,
@@ -698,7 +698,7 @@
   },
   "info": {
     "title": "GreenQuote API",
-    "description": "",
+    "description": "Solar financing pre-qualification: request a quote, see its price, risk band and three instalment offers, and list quotes.\n\n- Money is in euros with at most two decimals (stored as integer cents); `apr` is a fraction (`0.069` is 6.9 %).\n- Emails are trimmed and lowercased, so registration and sign-in ignore case.\n- Numbers in a quote request may also be sent as strings. Their upper bounds are storage bounds, not business rules.\n- Authorisation is checked server-side: a user sees only their own quotes, an admin sees every quote.",
     "version": "1.0.0",
     "contact": {}
   },
@@ -709,7 +709,8 @@
       "cookie": {
         "type": "apiKey",
         "in": "cookie",
-        "name": "session"
+        "name": "session",
+        "description": "Register and sign-in set an httpOnly `session` cookie (`SameSite=Lax`, `Secure` in production) holding a signed JWT with the user's id and role, valid for one day; the browser sends it with every request. A missing, expired or tampered cookie gives 401. The role is read from the token, so a role change takes effect at the next sign-in."
       }
     },
     "schemas": {

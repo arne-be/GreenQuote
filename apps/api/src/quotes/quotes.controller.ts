@@ -13,7 +13,6 @@ import {
   Body,
   Controller,
   Get,
-  HttpStatus,
   Param,
   ParseUUIDPipe,
   Post,
@@ -45,7 +44,7 @@ class QuoteListDto extends createZodDto(quoteListSchema) {}
 const quoteInputExample = {
   fullName: "Ada Lovelace",
   email: "ada@test.com",
-  address: "12 St James Square, London",
+  address: "Hauptstraße 12, 10115 Berlin",
   monthlyConsumptionKwh: 450,
   systemSizeKw: 5,
   downPayment: 1000,
@@ -87,7 +86,6 @@ export class QuotesController {
   })
   @ApiBadRequestResponse(
     errorResponse(
-      HttpStatus.BAD_REQUEST,
       `q longer than 100 characters, limit outside 1–${MAX_QUOTE_PAGE_SIZE} or a negative offset`,
       {
         statusCode: 400,
@@ -126,21 +124,17 @@ export class QuotesController {
     example: quoteExample,
   })
   @ApiBadRequestResponse(
-    errorResponse(
-      HttpStatus.BAD_REQUEST,
-      "Invalid input, or a down payment above the system price",
-      {
-        statusCode: 400,
-        message: "Validation failed",
-        errors: [
-          {
-            code: "custom",
-            path: ["downPayment"],
-            message: DOWN_PAYMENT_ABOVE_SYSTEM_PRICE,
-          },
-        ],
-      },
-    ),
+    errorResponse("Invalid input, or a down payment above the system price", {
+      statusCode: 400,
+      message: "Validation failed",
+      errors: [
+        {
+          code: "custom",
+          path: ["downPayment"],
+          message: DOWN_PAYMENT_ABOVE_SYSTEM_PRICE,
+        },
+      ],
+    }),
   )
   create(
     @CurrentUser() actor: Actor,
@@ -163,18 +157,17 @@ export class QuotesController {
     example: quoteExample,
   })
   @ApiBadRequestResponse(
-    errorResponse(HttpStatus.BAD_REQUEST, "The id is not a UUID", {
+    errorResponse("The id is not a UUID", {
       statusCode: 400,
       message: "Validation failed (uuid is expected)",
       error: "Bad Request",
     }),
   )
   @ApiNotFoundResponse(
-    errorResponse(
-      HttpStatus.NOT_FOUND,
-      "The quote does not exist or is not yours to see",
-      { statusCode: 404, message: "Quote not found" },
-    ),
+    errorResponse("The quote does not exist or is not yours to see", {
+      statusCode: 404,
+      message: "Quote not found",
+    }),
   )
   findOne(
     @CurrentUser() actor: Actor,

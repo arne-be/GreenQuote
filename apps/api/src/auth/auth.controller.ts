@@ -6,15 +6,7 @@ import {
   type User,
   userSchema,
 } from "@greenquote/domain";
-import {
-  Body,
-  Controller,
-  Get,
-  HttpCode,
-  HttpStatus,
-  Post,
-  Res,
-} from "@nestjs/common";
+import { Body, Controller, Get, HttpCode, Post, Res } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { JwtService } from "@nestjs/jwt";
 import {
@@ -84,24 +76,20 @@ export class AuthController {
     example: userExample,
   })
   @ApiBadRequestResponse(
-    errorResponse(
-      HttpStatus.BAD_REQUEST,
-      "Invalid full name, email or password",
-      {
-        statusCode: 400,
-        message: "Validation failed",
-        errors: [
-          {
-            code: "too_small",
-            path: ["password"],
-            message: "Use at least 8 characters",
-          },
-        ],
-      },
-    ),
+    errorResponse("Invalid full name, email or password", {
+      statusCode: 400,
+      message: "Validation failed",
+      errors: [
+        {
+          code: "too_small",
+          path: ["password"],
+          message: "Use at least 8 characters",
+        },
+      ],
+    }),
   )
   @ApiConflictResponse(
-    errorResponse(HttpStatus.CONFLICT, "The email is already registered", {
+    errorResponse("The email is already registered", {
       statusCode: 409,
       message: "Email is already registered",
     }),
@@ -135,7 +123,7 @@ export class AuthController {
     example: userExample,
   })
   @ApiBadRequestResponse(
-    errorResponse(HttpStatus.BAD_REQUEST, "Malformed email or password", {
+    errorResponse("Malformed email or password", {
       statusCode: 400,
       message: "Validation failed",
       errors: [
@@ -148,7 +136,7 @@ export class AuthController {
     }),
   )
   @ApiUnauthorizedResponse(
-    errorResponse(HttpStatus.UNAUTHORIZED, "Email or password is incorrect", {
+    errorResponse("Email or password is incorrect", {
       statusCode: 401,
       message: "Email or password is incorrect",
     }),

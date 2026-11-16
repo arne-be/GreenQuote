@@ -162,8 +162,13 @@ The decisions that are hard to reverse are in [docs/adr](docs/adr):
 - [0003](docs/adr/0003-role-scoped-quote-list.md): one quote list endpoint,
   scoped by role.
 
-The endpoints, authentication and error responses are described in
-[docs/api.md](docs/api.md).
+The API is described by its OpenAPI document: browse it in the Swagger UI at
+`/api/docs` on a running API, or read the committed
+[docs/openapi.json](docs/openapi.json), so a PR diff shows every API change.
+`pnpm openapi` builds it from the same code the API serves; pre-commit runs it
+and CI fails when the committed file is stale. The Swagger UI stays on in
+production: it reveals nothing a client could not learn by calling the API, and
+every data endpoint needs a session.
 
 ## Trade-offs
 

@@ -1,3 +1,5 @@
+# shortcut: builds from the working tree, so a partial commit can stage a document
+# with unstaged API changes; CI's drift check catches that.
 pnpm openapi
 git add docs/openapi.json
 pnpm exec lint-staged

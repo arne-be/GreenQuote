@@ -1,4 +1,3 @@
-import { HttpStatus } from "@nestjs/common";
 import { createZodDto } from "nestjs-zod";
 import { z } from "zod";
 
@@ -36,15 +35,13 @@ export class ErrorResponseDto extends createZodDto(errorResponseSchema) {}
 
 /** Options for an `@Api...Response` decorator documenting one error status. */
 export function errorResponse(
-  status: HttpStatus,
   description: string,
   example: z.infer<typeof errorResponseSchema>,
 ) {
-  return { status, description, type: ErrorResponseDto, example };
+  return { description, type: ErrorResponseDto, example };
 }
 
-export const noSessionResponse = errorResponse(
-  HttpStatus.UNAUTHORIZED,
-  "No valid session",
-  { statusCode: 401, message: "Not signed in" },
-);
+export const noSessionResponse = errorResponse("No valid session", {
+  statusCode: 401,
+  message: "Not signed in",
+});

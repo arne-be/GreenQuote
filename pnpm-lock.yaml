@@ -6,15 +6,45 @@ settings:
 
 catalogs:
   default:
+    '@eslint/js':
+      specifier: ^9.39.1
+      version: 9.39.5
+    '@node-rs/argon2':
+      specifier: ^2.2.2
+      version: 2.2.2
+    '@testcontainers/postgresql':
+      specifier: ^11.14.0
+      version: 11.14.0
     '@types/node':
       specifier: ^22.20.5
       version: 22.20.5
+    drizzle-kit:
+      specifier: ^0.31.11
+      version: 0.31.11
+    drizzle-orm:
+      specifier: ^0.45.4
+      version: 0.45.4
     eslint:
       specifier: ^9.39.1
       version: 9.39.5
+    eslint-config-prettier:
+      specifier: ^10.1.8
+      version: 10.1.8
+    eslint-plugin-simple-import-sort:
+      specifier: ^12.1.1
+      version: 12.1.1
+    postgres:
+      specifier: ^4.1.1
+      version: 4.1.1
+    tsx:
+      specifier: ^4.23.15
+      version: 4.23.15
     typescript:
       specifier: ^5.9.3
       version: 5.9.3
+    typescript-eslint:
+      specifier: ^8.47.0
+      version: 8.72.2
     vitest:
       specifier: ^4.0.10
       version: 4.1.12
@@ -47,6 +77,9 @@ importers:
 
   apps/api:
     dependencies:
+      '@greenquote/config':
+        specifier: workspace:*
+        version: link:../../packages/config
       '@greenquote/db':
         specifier: workspace:*
         version: link:../../packages/db
@@ -74,6 +107,12 @@ importers:
       '@node-rs/argon2':
         specifier: 'catalog:'
         version: 2.2.2
+      '@swc-node/register':
+        specifier: ^1.12.1
+        version: 1.12.1(@swc/core@1.16.22(@swc/helpers@0.5.23))(@swc/types@0.1.28)(typescript@5.9.3)
+      '@swc/core':
+        specifier: ^1.16.22
+        version: 1.16.22(@swc/helpers@0.5.23)
       cookie-parser:
         specifier: ^1.4.7
         version: 1.4.7
@@ -95,22 +134,16 @@ importers:
       rxjs:
         specifier: ^7.8.2
         version: 7.8.2
+      typescript:
+        specifier: 'catalog:'
+        version: 5.9.3
       zod:
         specifier: 'catalog:'
         version: 4.6.7
     devDependencies:
-      '@greenquote/config':
-        specifier: workspace:*
-        version: link:../../packages/config
       '@nestjs/testing':
         specifier: ^11.2.10
         version: 11.2.10(@nestjs/common@11.2.10(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.2.10)(@nestjs/platform-express@11.2.10)
-      '@swc-node/register':
-        specifier: ^1.12.1
-        version: 1.12.1(@swc/core@1.16.22(@swc/helpers@0.5.23))(@swc/types@0.1.28)(typescript@5.9.3)
-      '@swc/core':
-        specifier: ^1.16.22
-        version: 1.16.22(@swc/helpers@0.5.23)
       '@testcontainers/postgresql':
         specifier: 'catalog:'
         version: 11.14.0(bare-buffer@3.7.2)
@@ -132,9 +165,6 @@ importers:
       supertest:
         specifier: ^7.3.2
         version: 7.3.2
-      typescript:
-        specifier: 'catalog:'
-        version: 5.9.3
       unplugin-swc:
         specifier: ^2.0.0
         version: 2.0.0(@swc/core@1.16.22(@swc/helpers@0.5.23))(esbuild@0.28.2)(rolldown@1.2.19)(vite@8.3.8(@types/node@22.20.5)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.9.1))
@@ -244,6 +274,9 @@ importers:
       postgres:
         specifier: 'catalog:'
         version: 4.1.1
+      tsx:
+        specifier: 'catalog:'
+        version: 4.23.15
       zod:
         specifier: 'catalog:'
         version: 4.6.7
@@ -263,9 +296,6 @@ importers:
       eslint:
         specifier: 'catalog:'
         version: 9.39.5(jiti@2.7.0)
-      tsx:
-        specifier: 'catalog:'
-        version: 4.23.15
       typescript:
         specifier: 'catalog:'
         version: 5.9.3

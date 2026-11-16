@@ -11,6 +11,7 @@ import type {
 import { Button } from "@/components/ui/button";
 import { FieldError, FieldGroup } from "@/components/ui/field";
 import { resolveStep, type Step } from "@/lib/steps";
+import { cn } from "@/lib/utils";
 
 /**
  * A form asked one step at a time. The step is in the URL (`?step=<id>`, none
@@ -20,27 +21,40 @@ import { resolveStep, type Step } from "@/lib/steps";
 export function StepForm<
   TValues extends FieldValues,
   TSteps extends readonly [Step<TValues>, ...Step<TValues>[]],
+  // The values after the schema has coerced them, as the submit receives them.
+  TSubmitted extends FieldValues = TValues,
 >({
   form,
   steps,
   onSubmit,
   submitLabel,
   isLeaving,
+  preview,
   children,
 }: {
-  form: UseFormReturn<TValues>;
+  form: UseFormReturn<TValues, unknown, TSubmitted>;
   steps: TSteps;
-  onSubmit: SubmitHandler<TValues>;
+  onSubmit: SubmitHandler<TSubmitted>;
   submitLabel: string;
   /** True while the next page loads, so a second click cannot submit again. */
   isLeaving: boolean;
-  children: (step: TSteps[number]) => ReactNode;
+  /**
+   * Shown beside the step on desktop, below its fields on mobile, and
+   * announced politely. Without one (null), the step takes the full width.
+   */
+  preview?: (step: TSteps[number]) => ReactNode;
+  children: (
+    step: TSteps[number],
+    /** Goes back to an earlier step, as the summary's "Edit" does. */
+    goBackTo: (id: TSteps[number]["id"]) => void,
+  ) => ReactNode;
 }) {
   const [index, setIndex] = useState(0);
   // The furthest step the user has reached with valid earlier steps.
   const reached = useRef(0);
   const step: TSteps[number] = steps[index] ?? steps[0];
   const isLast = index === steps.length - 1;
+  const shownPreview = preview?.(step);
 
   const router = useRouter();
   // A reload on a later step has lost the earlier values: start again.
@@ -65,9 +79,12 @@ export function StepForm<
 
   const { setFocus } = form;
   const firstField = step.fields[0];
+  const nextButton = useRef<HTMLButtonElement>(null);
   useEffect(() => {
+    // A step without fields, like a summary, focuses its button instead.
     if (firstField) setFocus(firstField);
-  }, [firstField, setFocus]);
+    else nextButton.current?.focus();
+  }, [firstField, setFocus, step]);
 
   // Back through the history, so the browser's Back and Forward stay in step.
   const goBackTo = (target: number) => {
@@ -118,13 +135,38 @@ export function StepForm<
         void next();
       }}
     >
-      <FieldGroup>
-        <p className="text-sm text-muted-foreground">
+      {/* On desktop the preview spans every row; the last, flexible row takes
+          its extra height, so the buttons stay under the step. */}
+      <FieldGroup
+        className={cn(
+          shownPreview &&
+            "lg:grid lg:grid-cols-[1fr_20rem] lg:grid-rows-[auto_auto_auto_auto_1fr] lg:gap-x-12",
+        )}
+      >
+        <p className="text-sm text-muted-foreground lg:col-start-1">
           Step {index + 1} of {steps.length}
         </p>
-        {children(step)}
-        <FieldError errors={[form.formState.errors.root]} />
-        <div className="flex gap-3">
+        <div className="flex flex-col gap-7 lg:col-start-1">
+          {children(step, (id) =>
+            goBackTo(steps.findIndex((s) => s.id === id)),
+          )}
+        </div>
+        {/* Always mounted, so a screen reader announces the preview when it appears. */}
+        <div
+          aria-live="polite"
+          className={cn(
+            shownPreview
+              ? "lg:sticky lg:top-8 lg:col-start-2 lg:row-span-5 lg:row-start-1 lg:self-start"
+              : "contents",
+          )}
+        >
+          {shownPreview}
+        </div>
+        <FieldError
+          className="lg:col-start-1"
+          errors={[form.formState.errors.root]}
+        />
+        <div className="flex gap-3 lg:col-start-1">
           {index > 0 && (
             <Button
               type="button"
@@ -135,6 +177,7 @@ export function StepForm<
             </Button>
           )}
           <Button
+            ref={nextButton}
             type="submit"
             className="flex-1"
             disabled={isLast && (form.formState.isSubmitting || isLeaving)}

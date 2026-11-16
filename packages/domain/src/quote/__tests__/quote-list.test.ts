@@ -10,7 +10,7 @@ import { QuoteService } from "../quote.service.ts";
 
 let container: StartedPostgreSqlContainer;
 let db: Db;
-let list: QuoteService;
+let service: QuoteService;
 let ada: Actor;
 let grace: Actor;
 let admin: Actor;
@@ -54,7 +54,7 @@ beforeAll(async () => {
   container = await new PostgreSqlContainer("postgres:17-alpine").start();
   db = createDb(container.getConnectionUri());
   await migrateDb(db);
-  list = new QuoteService(db);
+  service = new QuoteService(db);
 
   ada = await insertUser("Ada Lovelace", "ada@test.com", "user");
   grace = await insertUser("Grace Hopper", "grace@test.com", "user");
@@ -86,7 +86,7 @@ const all = { limit: 100, offset: 0 };
 
 describe("listQuotes", () => {
   it("shows a user only their own quotes, newest first", async () => {
-    const result = await list.listQuotes(ada, all);
+    const result = await service.listQuotes(ada, all);
 
     expect(result.total).toBe(2);
     expect(result.items.map((item) => item.fullName)).toEqual([
@@ -96,7 +96,7 @@ describe("listQuotes", () => {
   });
 
   it("shows an admin every quote with the user who requested it", async () => {
-    const result = await list.listQuotes(admin, all);
+    const result = await service.listQuotes(admin, all);
 
     expect(result.total).toBe(5);
     expect(result.items[0]).toEqual({
@@ -121,7 +121,7 @@ describe("listQuotes", () => {
     ["applicant name", "babbage", ["Charles Babbage"]],
     ["applicant email", "howard@", ["Howard Aiken"]],
   ])("matches q against the %s, ignoring case", async (_field, q, expected) => {
-    const result = await list.listQuotes(admin, { ...all, q });
+    const result = await service.listQuotes(admin, { ...all, q });
 
     expect(result.items.map((item) => item.fullName).sort()).toEqual(
       [...expected].sort(),
@@ -130,15 +130,17 @@ describe("listQuotes", () => {
   });
 
   it("treats % and _ in q as plain characters", async () => {
-    const result = await list.listQuotes(admin, { ...all, q: "%" });
+    const result = await service.listQuotes(admin, { ...all, q: "%" });
 
     expect(result).toEqual({ items: [], total: 0 });
   });
 
   it("pages in a stable order and reports the total of all matches", async () => {
-    const everything = await list.listQuotes(admin, all);
+    const everything = await service.listQuotes(admin, all);
     const pages = await Promise.all(
-      [0, 2, 4].map((offset) => list.listQuotes(admin, { limit: 2, offset })),
+      [0, 2, 4].map((offset) =>
+        service.listQuotes(admin, { limit: 2, offset }),
+      ),
     );
 
     expect(pages.map((page) => page.total)).toEqual([5, 5, 5]);
@@ -149,7 +151,7 @@ describe("listQuotes", () => {
     for (const q of [undefined, "", "a", "grace", "hopper", "howard", "%"]) {
       for (const limit of [1, 2, 100]) {
         for (const offset of [0, 1, 4]) {
-          const result = await list.listQuotes(ada, { q, limit, offset });
+          const result = await service.listQuotes(ada, { q, limit, offset });
           for (const item of result.items) {
             expect(item.user.email).toBe("ada@test.com");
           }

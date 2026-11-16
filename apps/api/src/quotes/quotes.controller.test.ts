@@ -1,6 +1,7 @@
 import type { Server } from "node:http";
 
 import { createDb, type Db, migrateDb } from "@greenquote/db";
+import type { QuoteList } from "@greenquote/domain";
 import type { INestApplication } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import { Test } from "@nestjs/testing";
@@ -223,11 +224,23 @@ describe("GET /api/quotes", () => {
       .get(JwtService)
       .signAsync({ sub: adminUser.id, role: "admin" });
 
-    const own = await listQuotes(first).expect(200);
-    const all = await listQuotes(`session=${token}`, "?q=lister-").expect(200);
+    const own = (await listQuotes(first).expect(200)) as { body: QuoteList };
+    const everyone = (await listQuotes(`session=${token}`, "?limit=100").expect(
+      200,
+    )) as { body: QuoteList };
+    const searched = await listQuotes(`session=${token}`, "?q=lister-").expect(
+      200,
+    );
 
-    expect(own.body).toMatchObject({ total: 2 });
-    expect(all.body).toMatchObject({ total: 3 });
+    expect(own.body.total).toBe(2);
+    expect(own.body.items.map((item) => item.user.email)).toEqual([
+      "lister-one@test.com",
+      "lister-one@test.com",
+    ]);
+    expect(everyone.body.items.map((item) => item.user.email)).toEqual(
+      expect.arrayContaining(["lister-one@test.com", "lister-two@test.com"]),
+    );
+    expect(searched.body).toMatchObject({ total: 3 });
   });
 });
 

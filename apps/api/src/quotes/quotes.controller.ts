@@ -1,5 +1,6 @@
 import {
   type Actor,
+  MAX_QUOTE_PAGE_SIZE,
   type Quote,
   quoteInputSchema,
   type QuoteList,
@@ -56,8 +57,7 @@ export class QuotesController {
     description: "One page of quotes and the total number that match",
   })
   @ApiBadRequestResponse({
-    description:
-      "q longer than 100 characters, limit outside 1–100 or a negative offset",
+    description: `q longer than 100 characters, limit outside 1–${MAX_QUOTE_PAGE_SIZE} or a negative offset`,
   })
   findAll(
     @CurrentUser() actor: Actor,

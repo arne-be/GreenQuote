@@ -83,7 +83,7 @@ export class QuoteService {
     actor: Actor,
     { q, limit, offset }: QuoteListQuery,
   ): Promise<QuoteList> {
-    const where = and(visibleTo(actor), q ? matches(q) : undefined);
+    const where = and(visibleTo(actor), q ? searchMatches(q) : undefined);
     const [rows, [counted]] = await Promise.all([
       this.db
         .select({
@@ -108,6 +108,7 @@ export class QuoteService {
         .innerJoin(users, eq(users.id, quotes.userId))
         .where(where),
     ]);
+    if (counted === undefined) throw new Error("count returned no row");
     return {
       items: rows.map(
         ({ createdAt, systemSizeKw, systemPriceCents, ...row }) => ({
@@ -117,7 +118,7 @@ export class QuoteService {
           systemPrice: centsToEuros(systemPriceCents),
         }),
       ),
-      total: counted?.total ?? 0,
+      total: counted.total,
     };
   }
 }
@@ -127,8 +128,8 @@ function visibleTo(actor: Actor) {
   return actor.role === "admin" ? undefined : eq(quotes.userId, actor.id);
 }
 
-// shortcut: '%q%' cannot use an index and scans every row in scope; add a trigram index when lists grow large.
-function matches(q: string) {
+// A leading-wildcard ILIKE scans every quote in scope; indexing it is #34.
+function searchMatches(q: string) {
   const pattern = `%${q.replace(/[\\%_]/g, "\\$&")}%`;
   return or(
     ilike(users.fullName, pattern),

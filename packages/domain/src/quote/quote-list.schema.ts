@@ -3,6 +3,8 @@ import { z } from "zod";
 import { userSchema } from "../auth/auth.schema.ts";
 import { quoteSchema } from "./quote.schema.ts";
 
+export const MAX_QUOTE_PAGE_SIZE = 100;
+
 export const quoteListQuerySchema = z.object({
   q: z
     .string()
@@ -16,7 +18,7 @@ export const quoteListQuerySchema = z.object({
     .number()
     .int()
     .min(1)
-    .max(100)
+    .max(MAX_QUOTE_PAGE_SIZE)
     .default(20)
     .describe("How many quotes to return"),
   offset: z.coerce
@@ -45,7 +47,10 @@ export const quoteListItemSchema = quoteSchema
   });
 
 export const quoteListSchema = z.object({
-  items: z.array(quoteListItemSchema).max(100).describe("One page of quotes"),
+  items: z
+    .array(quoteListItemSchema)
+    .max(MAX_QUOTE_PAGE_SIZE)
+    .describe("One page of quotes"),
   total: z.int().min(0).describe("How many quotes match, across all pages"),
 });
 

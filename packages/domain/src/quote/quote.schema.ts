@@ -5,9 +5,10 @@ import { registerSchema } from "../auth/auth.schema.ts";
 import { eurosToCents } from "../money.ts";
 import { calculateSystemPriceCents } from "../pricing/pricing.ts";
 
-// Bounds that keep values storable in the quote columns, not eligibility rules.
 export const DOWN_PAYMENT_ABOVE_SYSTEM_PRICE =
   "The down payment cannot exceed the system price";
+
+// Bounds that keep values storable in the quote columns, not eligibility rules.
 
 const STORAGE_BOUNDS = {
   maxAddressLength: 300,

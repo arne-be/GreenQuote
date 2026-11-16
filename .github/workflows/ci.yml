@@ -24,6 +24,8 @@ jobs:
       - run: pnpm lint
       - run: pnpm types
       - run: pnpm build
+      - name: Committed OpenAPI document matches the code
+        run: pnpm openapi && git diff --exit-code docs/openapi.json
       # The db tests start Postgres with testcontainers, using the runner's Docker.
       - run: pnpm test
 

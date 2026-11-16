@@ -12,6 +12,7 @@
     "types": "turbo run types",
     "test": "turbo run test",
     "format": "prettier --write .",
+    "openapi": "turbo run openapi",
     "test:e2e": "turbo run test:e2e",
     "db:migrate": "turbo run db:migrate",
     "db:seed": "turbo run db:seed",

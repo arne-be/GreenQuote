@@ -1,0 +1,1119 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/api/health": {
+      "get": {
+        "operationId": "HealthController_check",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The process is up (liveness only; the database is not checked)"
+          },
+          "500": {
+            "description": "Something unexpected failed; the details are only logged",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "statusCode": 500,
+                  "message": "Internal server error"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Check the API is up",
+        "tags": [
+          "health"
+        ]
+      }
+    },
+    "/api/auth/register": {
+      "post": {
+        "description": "Creates a user with the `user` role and signs them in. The email is trimmed and lowercased.",
+        "operationId": "AuthController_register",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterDto"
+              },
+              "examples": {
+                "ada": {
+                  "value": {
+                    "fullName": "Ada Lovelace",
+                    "email": "ada@test.com",
+                    "password": "correct horse"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Registered as a user and signed in (sets the session cookie)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserDto"
+                },
+                "example": {
+                  "id": "0b7e4a52-3f0c-4a8e-9d55-6f1c2b9a7e10",
+                  "fullName": "Ada Lovelace",
+                  "email": "ada@test.com",
+                  "role": "user"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid full name, email or password",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "statusCode": 400,
+                  "message": "Validation failed",
+                  "errors": [
+                    {
+                      "code": "too_small",
+                      "path": [
+                        "password"
+                      ],
+                      "message": "Use at least 8 characters"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The email is already registered",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "statusCode": 409,
+                  "message": "Email is already registered"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Something unexpected failed; the details are only logged",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "statusCode": 500,
+                  "message": "Internal server error"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Register",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/auth/login": {
+      "post": {
+        "description": "An unknown email and a wrong password get the same 401, so the response does not reveal who is registered.",
+        "operationId": "AuthController_login",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginDto"
+              },
+              "examples": {
+                "ada": {
+                  "value": {
+                    "email": "ada@test.com",
+                    "password": "correct horse"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Signed in (sets the session cookie)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserDto"
+                },
+                "example": {
+                  "id": "0b7e4a52-3f0c-4a8e-9d55-6f1c2b9a7e10",
+                  "fullName": "Ada Lovelace",
+                  "email": "ada@test.com",
+                  "role": "user"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Malformed email or password",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "statusCode": 400,
+                  "message": "Validation failed",
+                  "errors": [
+                    {
+                      "code": "invalid_format",
+                      "path": [
+                        "email"
+                      ],
+                      "message": "Enter a valid email address"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Email or password is incorrect",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "statusCode": 401,
+                  "message": "Email or password is incorrect"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Something unexpected failed; the details are only logged",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "statusCode": 500,
+                  "message": "Internal server error"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Sign in",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/auth/logout": {
+      "post": {
+        "description": "Clears the session cookie. Public, so a browser with an expired session can still clear it.",
+        "operationId": "AuthController_logout",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "Session cookie cleared"
+          },
+          "500": {
+            "description": "Something unexpected failed; the details are only logged",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "statusCode": 500,
+                  "message": "Internal server error"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Sign out",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/auth/me": {
+      "get": {
+        "operationId": "AuthController_me",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The signed-in user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserDto"
+                },
+                "example": {
+                  "id": "0b7e4a52-3f0c-4a8e-9d55-6f1c2b9a7e10",
+                  "fullName": "Ada Lovelace",
+                  "email": "ada@test.com",
+                  "role": "user"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No valid session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "statusCode": 401,
+                  "message": "Not signed in"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Something unexpected failed; the details are only logged",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "statusCode": 500,
+                  "message": "Internal server error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Get the signed-in user",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/quotes": {
+      "get": {
+        "description": "Scoped by role: a user gets only their own quotes, an admin gets every quote. Newest first. `q` matches the requesting user's and the applicant's name and email, ignoring case.",
+        "operationId": "QuotesController_findAll",
+        "parameters": [
+          {
+            "name": "q",
+            "required": false,
+            "in": "query",
+            "description": "Matches the requesting user's and the applicant's name and email, ignoring case",
+            "schema": {
+              "maxLength": 100,
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "How many quotes to return",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20,
+              "type": "integer"
+            }
+          },
+          {
+            "name": "offset",
+            "required": false,
+            "in": "query",
+            "description": "How many quotes to skip, newest first",
+            "schema": {
+              "minimum": 0,
+              "maximum": 9007199254740991,
+              "default": 0,
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "One page of quotes and the total number that match",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QuoteListDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "q longer than 100 characters, limit outside 1–100 or a negative offset",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "statusCode": 400,
+                  "message": "Validation failed",
+                  "errors": [
+                    {
+                      "code": "too_big",
+                      "path": [
+                        "limit"
+                      ],
+                      "message": "Too big: expected number to be <=100"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No valid session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "statusCode": 401,
+                  "message": "Not signed in"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Something unexpected failed; the details are only logged",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "statusCode": 500,
+                  "message": "Internal server error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "List quotes",
+        "tags": [
+          "quotes"
+        ]
+      },
+      "post": {
+        "description": "Prices the inputs with the current pricing rules and stores the quote for the signed-in user. The applicant can be someone else. Numbers may also be sent as strings.",
+        "operationId": "QuotesController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/QuoteInputDto"
+              },
+              "examples": {
+                "ada": {
+                  "value": {
+                    "fullName": "Ada Lovelace",
+                    "email": "ada@test.com",
+                    "address": "12 St James Square, London",
+                    "monthlyConsumptionKwh": 450,
+                    "systemSizeKw": 5,
+                    "downPayment": 1000
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "The quote with its system price, risk band and three offers",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QuoteDto"
+                },
+                "example": {
+                  "id": "5de0294b-9bb5-4b53-8eae-df3583f77588",
+                  "createdAt": "2026-11-16T19:50:30.522Z",
+                  "fullName": "Ada Lovelace",
+                  "email": "ada@test.com",
+                  "address": "12 St James Square, London",
+                  "monthlyConsumptionKwh": 450,
+                  "systemSizeKw": 5,
+                  "downPayment": 1000,
+                  "systemPrice": 6000,
+                  "principal": 5000,
+                  "riskBand": "A",
+                  "apr": 0.069,
+                  "offers": [
+                    {
+                      "termYears": 5,
+                      "apr": 0.069,
+                      "principalUsed": 5000,
+                      "monthlyPayment": 98.77
+                    },
+                    {
+                      "termYears": 10,
+                      "apr": 0.069,
+                      "principalUsed": 5000,
+                      "monthlyPayment": 57.8
+                    },
+                    {
+                      "termYears": 15,
+                      "apr": 0.069,
+                      "principalUsed": 5000,
+                      "monthlyPayment": 44.66
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input, or a down payment above the system price",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "statusCode": 400,
+                  "message": "Validation failed",
+                  "errors": [
+                    {
+                      "code": "custom",
+                      "path": [
+                        "downPayment"
+                      ],
+                      "message": "The down payment cannot exceed the system price"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No valid session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "statusCode": 401,
+                  "message": "Not signed in"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Something unexpected failed; the details are only logged",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "statusCode": 500,
+                  "message": "Internal server error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Request a quote",
+        "tags": [
+          "quotes"
+        ]
+      }
+    },
+    "/api/quotes/{id}": {
+      "get": {
+        "description": "Returns the quote to the user who requested it and to any admin. Anyone else gets 404, the same as for an id that does not exist, so the response does not reveal which quote ids exist.",
+        "operationId": "QuotesController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "The quote's id",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The quote with its offers",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QuoteDto"
+                },
+                "example": {
+                  "id": "5de0294b-9bb5-4b53-8eae-df3583f77588",
+                  "createdAt": "2026-11-16T19:50:30.522Z",
+                  "fullName": "Ada Lovelace",
+                  "email": "ada@test.com",
+                  "address": "12 St James Square, London",
+                  "monthlyConsumptionKwh": 450,
+                  "systemSizeKw": 5,
+                  "downPayment": 1000,
+                  "systemPrice": 6000,
+                  "principal": 5000,
+                  "riskBand": "A",
+                  "apr": 0.069,
+                  "offers": [
+                    {
+                      "termYears": 5,
+                      "apr": 0.069,
+                      "principalUsed": 5000,
+                      "monthlyPayment": 98.77
+                    },
+                    {
+                      "termYears": 10,
+                      "apr": 0.069,
+                      "principalUsed": 5000,
+                      "monthlyPayment": 57.8
+                    },
+                    {
+                      "termYears": 15,
+                      "apr": 0.069,
+                      "principalUsed": 5000,
+                      "monthlyPayment": 44.66
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The id is not a UUID",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "statusCode": 400,
+                  "message": "Validation failed (uuid is expected)",
+                  "error": "Bad Request"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No valid session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "statusCode": 401,
+                  "message": "Not signed in"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The quote does not exist or is not yours to see",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "statusCode": 404,
+                  "message": "Quote not found"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Something unexpected failed; the details are only logged",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                },
+                "example": {
+                  "statusCode": 500,
+                  "message": "Internal server error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Get a quote",
+        "tags": [
+          "quotes"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "GreenQuote API",
+    "description": "",
+    "version": "1.0.0",
+    "contact": {}
+  },
+  "tags": [],
+  "servers": [],
+  "components": {
+    "securitySchemes": {
+      "cookie": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "session"
+      }
+    },
+    "schemas": {
+      "ErrorResponseDto": {
+        "type": "object",
+        "properties": {
+          "statusCode": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991,
+            "description": "The HTTP status code, repeated"
+          },
+          "message": {
+            "type": "string",
+            "description": "What went wrong, readable by a person"
+          },
+          "errors": {
+            "description": "Field errors; only on a 400 for an invalid body or query",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "description": "The Zod issue code; absent when the domain rejects it",
+                  "type": "string"
+                },
+                "path": {
+                  "type": "array",
+                  "items": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "number"
+                      }
+                    ]
+                  },
+                  "description": "The field the error is about"
+                },
+                "message": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "path",
+                "message"
+              ],
+              "additionalProperties": {}
+            }
+          },
+          "error": {
+            "description": "The status text; only on Nest's own 400 for a malformed path id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "statusCode",
+          "message"
+        ]
+      },
+      "RegisterDto": {
+        "type": "object",
+        "properties": {
+          "fullName": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "email": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string",
+            "minLength": 8,
+            "maxLength": 128
+          }
+        },
+        "required": [
+          "fullName",
+          "email",
+          "password"
+        ]
+      },
+      "UserDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+          },
+          "fullName": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "user",
+              "admin"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "fullName",
+          "email",
+          "role"
+        ]
+      },
+      "LoginDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          }
+        },
+        "required": [
+          "email",
+          "password"
+        ]
+      },
+      "QuoteListDto": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "maxItems": 100,
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "format": "uuid",
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+                  "description": "The quote's id"
+                },
+                "createdAt": {
+                  "type": "string",
+                  "format": "date-time",
+                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$",
+                  "description": "When the quote was requested"
+                },
+                "fullName": {
+                  "type": "string",
+                  "description": "The applicant's full name"
+                },
+                "email": {
+                  "type": "string",
+                  "description": "The applicant's email"
+                },
+                "systemSizeKw": {
+                  "type": "number",
+                  "exclusiveMinimum": true,
+                  "maximum": 10000,
+                  "description": "The rated power of the solar system, in kW",
+                  "minimum": 0
+                },
+                "systemPrice": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 21474836.47,
+                  "description": "The price of the solar system before any down payment, in euros"
+                },
+                "riskBand": {
+                  "type": "string",
+                  "enum": [
+                    "A",
+                    "B",
+                    "C"
+                  ],
+                  "description": "A coarse rating of the applicant that sets the APR"
+                },
+                "user": {
+                  "type": "object",
+                  "properties": {
+                    "fullName": {
+                      "type": "string"
+                    },
+                    "email": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "fullName",
+                    "email"
+                  ],
+                  "description": "The user who requested the quote"
+                }
+              },
+              "required": [
+                "id",
+                "createdAt",
+                "fullName",
+                "email",
+                "systemSizeKw",
+                "systemPrice",
+                "riskBand",
+                "user"
+              ]
+            },
+            "description": "One page of quotes"
+          },
+          "total": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991,
+            "description": "How many quotes match, across all pages"
+          }
+        },
+        "required": [
+          "items",
+          "total"
+        ]
+      },
+      "QuoteInputDto": {
+        "type": "object",
+        "properties": {
+          "fullName": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200,
+            "description": "The applicant's full name"
+          },
+          "email": {
+            "description": "The applicant's email",
+            "type": "string"
+          },
+          "address": {
+            "type": "string",
+            "minLength": 5,
+            "maxLength": 300,
+            "description": "The address of the house the solar system is for"
+          },
+          "monthlyConsumptionKwh": {
+            "type": "integer",
+            "exclusiveMinimum": true,
+            "maximum": 1000000,
+            "description": "The household's average electricity use per month, in kWh",
+            "minimum": 0
+          },
+          "systemSizeKw": {
+            "type": "number",
+            "exclusiveMinimum": true,
+            "maximum": 10000,
+            "multipleOf": 0.01,
+            "description": "The rated power of the solar system, in kW",
+            "minimum": 0
+          },
+          "downPayment": {
+            "description": "The amount in euros paid upfront and not financed; at most the system price",
+            "type": "number",
+            "minimum": 0,
+            "multipleOf": 0.01
+          }
+        },
+        "required": [
+          "fullName",
+          "email",
+          "address",
+          "monthlyConsumptionKwh",
+          "systemSizeKw"
+        ]
+      },
+      "QuoteDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+            "description": "The quote's id"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$",
+            "description": "When the quote was requested"
+          },
+          "fullName": {
+            "type": "string",
+            "description": "The applicant's full name"
+          },
+          "email": {
+            "type": "string",
+            "description": "The applicant's email"
+          },
+          "address": {
+            "type": "string",
+            "description": "The address of the house the solar system is for"
+          },
+          "monthlyConsumptionKwh": {
+            "type": "integer",
+            "exclusiveMinimum": true,
+            "maximum": 1000000,
+            "description": "The household's average electricity use per month, in kWh",
+            "minimum": 0
+          },
+          "systemSizeKw": {
+            "type": "number",
+            "exclusiveMinimum": true,
+            "maximum": 10000,
+            "description": "The rated power of the solar system, in kW",
+            "minimum": 0
+          },
+          "downPayment": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 21474836.47,
+            "description": "The amount paid upfront, in euros; 0 when none"
+          },
+          "systemPrice": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 21474836.47,
+            "description": "The price of the solar system before any down payment, in euros"
+          },
+          "principal": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 21474836.47,
+            "description": "The amount financed (system price minus down payment), in euros"
+          },
+          "riskBand": {
+            "type": "string",
+            "enum": [
+              "A",
+              "B",
+              "C"
+            ],
+            "description": "A coarse rating of the applicant that sets the APR"
+          },
+          "apr": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1,
+            "description": "The annual percentage rate set by the risk band, as a fraction"
+          },
+          "offers": {
+            "minItems": 1,
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "termYears": {
+                  "type": "integer",
+                  "exclusiveMinimum": true,
+                  "maximum": 9007199254740991,
+                  "description": "The length of the offer in years",
+                  "minimum": 0
+                },
+                "apr": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1,
+                  "description": "The annual percentage rate set by the risk band, as a fraction"
+                },
+                "principalUsed": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 21474836.47,
+                  "description": "The amount this offer finances, in euros"
+                },
+                "monthlyPayment": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 21474836.47,
+                  "description": "The fixed amount paid each month over the term, in euros"
+                }
+              },
+              "required": [
+                "termYears",
+                "apr",
+                "principalUsed",
+                "monthlyPayment"
+              ]
+            },
+            "description": "One offer per term of the quote's pricing rules, shortest first"
+          }
+        },
+        "required": [
+          "id",
+          "createdAt",
+          "fullName",
+          "email",
+          "address",
+          "monthlyConsumptionKwh",
+          "systemSizeKw",
+          "downPayment",
+          "systemPrice",
+          "principal",
+          "riskBand",
+          "apr",
+          "offers"
+        ]
+      }
+    }
+  }
+}

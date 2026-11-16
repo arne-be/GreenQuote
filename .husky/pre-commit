@@ -1,3 +1,5 @@
+pnpm openapi
+git add docs/openapi.json
 pnpm exec lint-staged
 pnpm lint
 pnpm types

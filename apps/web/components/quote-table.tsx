@@ -43,7 +43,7 @@ export function QuoteTable({
           <TableRow>
             <TableHead scope="col">Date</TableHead>
             {isAdminView && <TableHead scope="col">User</TableHead>}
-            {isAdminView && <TableHead scope="col">Applicant</TableHead>}
+            <TableHead scope="col">Applicant</TableHead>
             <TableHead scope="col" className="text-right">
               System size
             </TableHead>
@@ -61,7 +61,7 @@ export function QuoteTable({
             <TableRow key={quote.id}>
               <TableCell>{formatDate(new Date(quote.createdAt))}</TableCell>
               {isAdminView && <NameAndEmailCell {...quote.user} />}
-              {isAdminView && <NameAndEmailCell {...quote} />}
+              <NameAndEmailCell {...quote} />
               <TableCell className="text-right tabular-nums">
                 {formatKw(quote.systemSizeKw)}
               </TableCell>

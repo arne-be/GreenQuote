@@ -18,9 +18,16 @@ test("a new user requests a quote once, even clicking submit twice, and sees the
   await expect(
     page.getByRole("heading", { name: "Request a quote" }),
   ).toBeVisible();
-  await page.getByLabel("Address").fill("Musterstraße 1, 10115 Berlin");
-  await page.getByLabel("Monthly consumption (kWh)").fill("400");
-  await page.getByLabel("System size (kW)").fill("6");
+  await page.getByRole("button", { name: "Next" }).click();
+  for (const [label, value] of [
+    ["Address", "Musterstraße 1, 10115 Berlin"],
+    ["Monthly consumption (kWh)", "400"],
+    ["System size (kW)", "6"],
+  ] as const) {
+    await page.getByLabel(label).fill(value);
+    await page.getByRole("button", { name: "Next" }).click();
+  }
+  await page.getByRole("button", { name: "Next" }).click();
   // Hold the results page for a moment, the time a slow network would take to load it.
   const isResultsPage = (url: URL) => /^\/quotes\/[^/]+$/.test(url.pathname);
   await page.route(isResultsPage, async (route) => {

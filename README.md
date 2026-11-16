@@ -1,0 +1,177 @@
+# GreenQuote
+
+Pre-qualification of residential solar systems for financing. A signed-in user
+requests a quote and sees the system price, the risk band and three offers
+(5, 10 and 15 year terms). Users list their own quotes; admins see every quote.
+
+The words used here (quote, applicant, offer, risk band, ...) are defined in
+[GLOSSARY.md](GLOSSARY.md).
+
+## Prerequisites
+
+- Docker with Compose v2, for the full stack and for the database tests.
+- For local development without Docker images: Node 22 or later and pnpm 10
+  (`corepack enable` installs the version pinned in `package.json`).
+
+## Run with Docker
+
+```bash
+cp .env.example .env
+```
+
+```bash
+docker compose up --build
+```
+
+Compose starts Postgres, runs the migrations and the seed once (the `migrate`
+service, which then exits), starts the API and then the web app. When it is up,
+open <http://localhost:3000> and sign in as the seeded admin:
+
+- email: `admin@test.com`
+- password: the value of `SEED_ADMIN_PASSWORD` in `.env`
+
+You can also register a new user on `/register`. The API is not published on
+its own port; the web app forwards `/api/*` to it, so the Swagger UI is at
+<http://localhost:3000/api/docs>.
+
+The API image runs with `NODE_ENV=production`, which marks the session cookie
+`Secure`. Browsers accept that cookie on `http://localhost`, but not on plain
+HTTP from another host name or IP, so open the app on `localhost`.
+
+Ports 3000 (web) and 5432 (Postgres) must be free. To start again from an empty
+database, run `docker compose down -v`.
+
+## Run for development
+
+```bash
+pnpm install
+```
+
+```bash
+cp .env.example .env
+```
+
+```bash
+docker compose up -d db
+```
+
+```bash
+pnpm db:migrate && pnpm db:seed
+```
+
+```bash
+pnpm dev
+```
+
+The web app runs on <http://localhost:3000> and the API on
+<http://localhost:3001> (Swagger UI at <http://localhost:3001/api/docs>). Both
+reload on change. Configuration comes from `.env` only: Turborepo does not pass
+shell variables through to its tasks, so `DATABASE_URL=... pnpm db:migrate`
+still uses the value in `.env`.
+
+## Test
+
+```bash
+pnpm lint
+```
+
+```bash
+pnpm types
+```
+
+```bash
+pnpm test
+```
+
+`pnpm test` runs the unit and integration tests of every package. The database
+tests start their own Postgres with Testcontainers, so Docker must be running.
+`pnpm format` runs Prettier.
+
+CI (`.github/workflows/ci.yml`) runs `pnpm lint`, `pnpm types`, `pnpm build`
+and `pnpm test` on every pull request and on every push to `main`. The
+pre-commit hook formats the staged files and runs lint, types and tests;
+commitlint enforces Conventional Commits.
+
+## How it is built
+
+```text
+apps/web          Next.js (App Router): UI only, calls the API
+apps/api          NestJS: controllers, session guard, HTTP error mapping
+packages/domain   business rules: pricing, services, Zod schemas, typed errors
+packages/db       Drizzle schema, migrations, seed
+packages/config   shared ESLint and tsconfig presets
+```
+
+Every business rule lives in `packages/domain`, which has no framework
+dependency; the API is a thin layer over it. The same Zod schema validates a
+form in the browser and the request body in the API. The web app proxies
+`/api/*` to the API, so the browser sees one origin, the session cookie stays
+first party and there is no CORS setup.
+
+The decisions that are hard to reverse are in [docs/adr](docs/adr):
+
+- [0001](docs/adr/0001-jwt-session-cookie.md): sessions are a signed JWT in an
+  httpOnly cookie, with no sessions table.
+- [0002](docs/adr/0002-quote-snapshot-and-offer-table.md): a quote stores a
+  snapshot of its result and the pricing rules version that produced it;
+  offers are rows in their own table.
+- [0003](docs/adr/0003-role-scoped-quote-list.md): one quote list endpoint,
+  scoped by role.
+
+The endpoints, authentication and error responses are described in
+[docs/api.md](docs/api.md).
+
+## Trade-offs
+
+- An admin's `/quotes` page shows every quote, not only the admin's own. One
+  list endpoint scoped by role is simpler than a separate admin resource
+  (ADR 0003); a `userId` filter would bring back "my quotes" for admins.
+- The upper limits on quote inputs are storage bounds that keep values inside
+  their database columns. They are not business rules about which systems are
+  sensible.
+- The APR covers interest only. Fees are not modelled, so the monthly payment
+  is the interest-and-principal payment at that APR.
+- The address is free text, stored as entered. Nothing checks that it exists.
+
+## What I'd do next
+
+- Token revocation or server-side sessions (ADR 0001).
+- A `pricing_rules` table instead of constants, so rates change without a
+  deploy (ADR 0002).
+- Cursor pagination ([Google AIP-158](https://google.aip.dev/158)) instead of
+  `limit`/`offset`.
+- A `userId` filter so an admin's `/quotes` shows only their own quotes
+  (ADR 0003).
+- Address autocomplete and server-side Address Validation. Under GDPR this
+  needs a legal basis and a processor agreement, because the addresses go to
+  Google.
+- Email verification.
+- A `pg_trgm` index for the `q` search.
+
+## CI/CD
+
+CI already runs on every pull request and on `main`. For delivery I would add
+a workflow that runs after CI passes on `main`: build the three images (the
+Dockerfiles already exist), tag them with the commit SHA, push them to a
+registry, run the migrate image as a one-off job, then deploy the API and the
+web app. Staging deploys on every merge; production deploys the same image
+digests after a manual approval. Rolling back means redeploying the previous
+digest, which is why migrations have to stay backwards compatible for one
+release.
+
+## Deploying on GCP (Cloud Run)
+
+- Web and API run as two Cloud Run services from the existing images. Only the
+  web service is public; the API uses internal ingress and the web service
+  reaches it over Direct VPC egress, which keeps the single-origin cookie
+  setup.
+- `API_URL` is a build argument of the web image, because Next.js builds the
+  `/api` rewrite into the bundle, so the web image is built per environment.
+- Postgres runs on Cloud SQL, reached over private IP.
+- Migrations and the seed run as a Cloud Run job from the `migrate` image
+  before each deploy.
+- `JWT_SECRET`, the database password and `SEED_ADMIN_PASSWORD` come from
+  Secret Manager. Both services already read their port from `PORT`, which
+  Cloud Run sets.
+- The API logs JSON through pino, which Cloud Logging parses without extra
+  setup.

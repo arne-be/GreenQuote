@@ -1,3 +1,4 @@
+export * from "./auth/auth.schema.js";
 export * from "./errors.js";
 export { calculateQuoteResult } from "./pricing/pricing.js";
 export type {

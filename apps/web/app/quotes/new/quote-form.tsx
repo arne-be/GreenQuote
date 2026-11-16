@@ -42,8 +42,8 @@ export function QuoteForm({
   const handleSubmit = form.handleSubmit(async (values) => {
     try {
       const quote = await createQuote(values);
-      // Replace, so going back does not land on a form that resubmits.
       setIsLeaving(true);
+      // Replace, so going back does not land on a form that resubmits.
       router.replace(`/quotes/${quote.id}`);
     } catch (error) {
       let hasFieldError = false;
@@ -174,8 +174,8 @@ export function QuoteForm({
                 aria-invalid={fieldState.invalid}
               />
               <FieldDescription id="downPayment-description">
-                Optional. The amount you pay yourself upfront. It lowers the
-                amount you finance.
+                Optional. What you pay upfront yourself. It lowers the
+                principal, the amount you finance.
               </FieldDescription>
               <FieldError errors={[fieldState.error]} />
             </Field>

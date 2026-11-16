@@ -163,10 +163,7 @@ The endpoints, authentication and error responses are described in
 - Token revocation or server-side sessions (ADR 0001).
 - A `pricing_rules` table instead of constants, so prices and APRs change without a
   deploy (ADR 0002).
-- Cursor pagination ([Google AIP-158](https://google.aip.dev/158)) instead of
-  `limit`/`offset`.
-- A `userId` filter so an admin's `/quotes` shows only their own quotes
-  (ADR 0003).
+- Cursor pagination instead of `limit`/`offset`.
 - Address autocomplete and server-side Address Validation. Under GDPR this
   needs a legal basis and a processor agreement, because the addresses go to
   Google.
@@ -175,14 +172,15 @@ The endpoints, authentication and error responses are described in
 
 ## CI/CD
 
-CI already runs on every pull request and on `main`. For delivery I would add
-a workflow that runs after CI passes on `main`: build the three images (the
-Dockerfiles already exist), tag them with the commit SHA, push them to a
-registry, run the migrate image as a one-off job, then deploy the API and the
-web app. Staging deploys on every merge; production deploys the same image
-digests after a manual approval. Rolling back means redeploying the previous
-digest, which is why migrations have to stay backwards compatible for one
-release.
+CI already runs on every pull request and on `main`. Deploys would run in
+GitHub Actions too, with one branch per environment: `main` is staging and
+`production` is production. Every merge into `main` deploys staging;
+production deploys when a pull request into the `production` branch is
+merged. Each deploy builds the three images (the Dockerfiles already exist),
+tags them with the commit SHA, pushes them to a registry, runs the migrate
+image as a one-off job, then deploys the API and the web app. Rolling back
+means redeploying the previous images, which is why migrations have to stay
+backwards compatible for one release.
 
 ## Deploying on GCP (Cloud Run)
 

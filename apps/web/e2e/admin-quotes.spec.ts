@@ -25,9 +25,12 @@ test("an admin lists other users' quotes and finds one by email", async ({
     }),
   ).toBeOK();
 
+  const adminPassword = process.env.SEED_ADMIN_PASSWORD;
+  if (!adminPassword) throw new Error("Set SEED_ADMIN_PASSWORD in .env.");
+
   await page.goto("/login");
   await page.getByLabel("Email").fill("admin@test.com");
-  await page.getByLabel("Password").fill(process.env.SEED_ADMIN_PASSWORD!);
+  await page.getByLabel("Password").fill(adminPassword);
   await page.getByRole("button", { name: "Sign in" }).click();
   await expect(
     page.getByRole("heading", { name: "Quotes", exact: true }),

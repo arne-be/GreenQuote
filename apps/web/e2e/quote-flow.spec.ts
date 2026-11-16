@@ -2,7 +2,7 @@ import { randomUUID } from "node:crypto";
 
 import { expect, test } from "@playwright/test";
 
-test("a new user requests a quote and sees the offers and the quote list", async ({
+test("a new user requests a quote once, even clicking submit twice, and sees the offers and the quote list", async ({
   page,
 }) => {
   const email = `e2e-${randomUUID()}@test.com`;

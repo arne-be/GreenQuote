@@ -61,6 +61,11 @@ _Avoid_: Duration, tenor
 The fixed amount paid each month over an offer's term.
 _Avoid_: Instalment, rate
 
+**Preview**:
+The result shown while a quote is being requested, worked out from the inputs
+entered so far. It is not saved; the quote's own result is what counts.
+_Avoid_: Estimate, simulation, draft quote
+
 ### People
 
 **User**:

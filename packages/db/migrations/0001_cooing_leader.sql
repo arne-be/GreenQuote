@@ -1,0 +1,1 @@
+CREATE INDEX "quotes_created_at_id_index" ON "quotes" USING btree ("created_at","id");

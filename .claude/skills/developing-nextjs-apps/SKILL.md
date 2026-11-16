@@ -40,8 +40,9 @@ or a permission; it shows what the API returns.
 
 - `middleware.ts` redirects requests without a session cookie to `/login` for
   protected routes. This is UX only: the API enforces access.
-- Admin pages ask the API, and render its 403 as a page, rather than trusting a
-  role flag in the client.
+- Admin pages may redirect non-admins using the role from `/api/auth/me`. That
+  is UX too: the API scopes the data by role (ADR 0003), so it never relies on
+  the redirect.
 
 ## State
 

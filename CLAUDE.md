@@ -28,8 +28,15 @@ is in `.claude/skills/ask-matt/SKILL.md`.
 - **Build**: `implement` per ticket (test-first with `tdd`, closed by
   `code-review`), or `implement-spec` for a whole spec.
 - **Ship**: one branch per change off `main`, a PR whose body follows `pr`,
-  then a squash merge (`gh pr merge --squash`). The PR title becomes the
-  squash commit, so it is a Conventional Commit. GitHub deletes the branch.
+  a posted review, the user's go-ahead, then a squash merge
+  (`gh pr merge --squash`). The PR title becomes the squash commit, so it is a
+  Conventional Commit. GitHub deletes the branch.
+  - **Posted review**: run `code-review` on the PR and post its findings with
+    `gh pr review <n> --comment --body-file <file>`. Re-run and re-post when
+    later commits change the code.
+  - **Go-ahead**: the user says in chat to merge that PR (GitHub cannot record
+    an author's approval of their own PR). Without both, an agent stops at the
+    open PR and reports its URL.
 
 ## Layout
 
@@ -65,7 +72,7 @@ Update this list when a script is added or renamed.
 
 - Conventional Commits, enforced by commitlint: `<type>(<scope>): <description>`
   in imperative mood. Scope is the package or area (`feat(api): add quote
-  endpoint`).
+endpoint`).
 - Small commits that each build and pass tests: reviewers read the PR's
   history.
 - Let the pre-commit hook run; never `--no-verify`.

@@ -15,3 +15,5 @@ Run typechecking regularly, single test files regularly, and the full test suite
 Once done, call the Skill tool with "code-review" to review the work.
 
 Commit your work to the current branch.
+
+When you open the PR, post the `code-review` findings on it and stop for the user's go-ahead, as `CLAUDE.md`'s Ship step describes.

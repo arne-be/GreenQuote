@@ -124,7 +124,9 @@ Button: override the shadcn default to `rounded-full`, `h-12 px-6`; the
   button naming the action ("Create account"). Enter goes to the next step,
   focus moves to the step's first input, and the browser Back goes to the
   previous step (`?step=<id>`). Values stay in memory. On desktop a sticky grey
-  "Preview" panel sits beside the step, below it on mobile.
+  "Preview" panel sits beside the step, below it on mobile. The panel appears
+  only once it has something to show; until then the step takes the full
+  width. A slider shows its minimum and maximum under it.
 
 ## Logos
 

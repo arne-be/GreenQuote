@@ -25,7 +25,8 @@ test("a user requests a quote in six steps with the keyboard, and the summary's 
   await expect(page.getByLabel("Applicant's full name")).toHaveValue(
     "Erika Example",
   );
-  await expect(preview).toContainText("Enter the system size");
+  // No preview until there is something to show.
+  await expect(preview).toBeHidden();
   await page.keyboard.press("Enter");
 
   await expect(page.getByText("Step 2 of 6")).toBeVisible();
@@ -38,9 +39,8 @@ test("a user requests a quote in six steps with the keyboard, and the summary's 
   await expect(page.getByText("Step 4 of 6")).toBeVisible();
   await expect(page.getByLabel("System size (kW)")).toBeFocused();
   await page.keyboard.type("6");
-  // The price, band and APR appear as the size is entered.
+  // The price and APR appear as the size is entered.
   await expect(value(preview, "System price")).toHaveText("7.200 €");
-  await expect(value(preview, "Risk band")).toHaveText("A");
   await expect(value(preview, "APR")).toHaveText("6,9 %");
   await page.keyboard.press("Enter");
 
@@ -59,7 +59,8 @@ test("a user requests a quote in six steps with the keyboard, and the summary's 
   await expect(
     page.getByRole("button", { name: "Request quote" }),
   ).toBeFocused();
-  const terms = ["System price", "Risk band", "APR", "Principal"];
+  await expect(preview).not.toContainText("Risk band");
+  const terms = ["System price", "APR", "Principal"];
   const expected = await Promise.all(
     terms.map((term) => value(preview, term).innerText()),
   );
@@ -112,6 +113,12 @@ test("the down payment slider stops at the system price, and a lower size lowers
   await page.keyboard.press("End");
   await page.keyboard.press("ArrowRight");
   await expect(slider).toHaveAttribute("aria-valuenow", "7200");
+  await expect(slider).toHaveAttribute("aria-valuemin", "0");
+  await expect(slider).toHaveAttribute("aria-valuemax", "7200");
+  // The range is shown under the slider.
+  const range = page.locator('[data-slot="slider"] + div');
+  await expect(range.locator("span").first()).toHaveText(/^0\s€$/);
+  await expect(range.locator("span").last()).toHaveText(/^7\.200\s€$/);
   await expect(page.getByLabel("Down payment (€)")).toHaveValue("7200");
 
   await page.goBack();

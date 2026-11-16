@@ -40,7 +40,6 @@ import {
 
 type QuoteStepId = (typeof quoteSteps)[number]["id"];
 
-const SIZE_STEP = quoteSteps.findIndex((step) => step.id === "size");
 const DOWN_PAYMENT_STEP = quoteSteps.findIndex(
   (step) => step.id === "down-payment",
 );
@@ -110,13 +109,15 @@ export function QuoteForm({
       submitLabel="Request quote"
       isLeaving={isLeaving}
       onSubmit={handleSubmit}
-      preview={(step) => (
-        <QuotePreview
-          result={preview}
-          step={quoteSteps.indexOf(step)}
-          isSliding={isSliding}
-        />
-      )}
+      preview={(step) =>
+        preview && (
+          <QuotePreview
+            result={preview}
+            showsOffers={quoteSteps.indexOf(step) >= DOWN_PAYMENT_STEP}
+            isSliding={isSliding}
+          />
+        )
+      }
     >
       {(step, goBackTo) =>
         ({
@@ -221,8 +222,13 @@ function DownPaymentStep({
             onPointerDown={() => onSlidingChange(true)}
             // After pointerup and pointercancel alike, as the slider captures the pointer.
             onLostPointerCapture={() => onSlidingChange(false)}
-            className="my-2"
+            className="mt-2"
           />
+          {/* The range the slider covers. */}
+          <div className="flex justify-between text-sm text-muted-foreground">
+            <span>{formatMoney(0)}</span>
+            <span>{formatMoney(maxEuros)}</span>
+          </div>
           <Input
             {...field}
             value={field.value ?? ""}
@@ -295,14 +301,14 @@ function Summary({
 
 function QuotePreview({
   result,
-  step,
+  showsOffers,
   isSliding,
 }: {
-  result: QuoteResult | null;
-  step: number;
+  result: QuoteResult;
+  /** From the down payment step on, which sets the principal. */
+  showsOffers: boolean;
   isSliding: boolean;
 }) {
-  const showsOffers = step >= DOWN_PAYMENT_STEP;
   return (
     <section
       aria-labelledby="preview-heading"
@@ -313,49 +319,40 @@ function QuotePreview({
       <h2 id="preview-heading" className="text-lg font-medium">
         Preview
       </h2>
-      {result === null || step < SIZE_STEP ? (
-        <p className="text-sm text-muted-foreground">
-          Enter the system size to see its price and your offers.
-        </p>
-      ) : (
-        <>
-          <dl className="grid grid-cols-2 gap-4">
-            <PreviewValue
-              term="System price"
-              value={formatMoney(centsToEuros(result.systemPriceCents))}
-            />
-            <PreviewValue term="Risk band" value={result.riskBand} />
-            <PreviewValue term="APR" value={formatPercent(result.apr)} />
-            {showsOffers && result.principalCents >= 0 && (
-              <PreviewValue
-                term="Principal"
-                value={formatMoney(centsToEuros(result.principalCents))}
-              />
-            )}
-          </dl>
-          {showsOffers &&
-            (result.principalCents < 0 ? (
-              <p className="text-sm">{DOWN_PAYMENT_ABOVE_SYSTEM_PRICE}.</p>
-            ) : (
-              <ul className="flex flex-col gap-3">
-                {result.offers.map((offer) => (
-                  <li key={offer.termYears} className="rounded-xl bg-card p-4">
-                    <h3 className="text-sm font-semibold">
-                      {offer.termYears} years
-                    </h3>
-                    <p className="text-xl font-semibold tabular-nums">
-                      {formatMoney(centsToEuros(offer.monthlyPaymentCents))}
-                      <span className="text-sm font-normal text-muted-foreground">
-                        {" "}
-                        per month
-                      </span>
-                    </p>
-                  </li>
-                ))}
-              </ul>
+      <dl className="grid grid-cols-2 gap-4">
+        <PreviewValue
+          term="System price"
+          value={formatMoney(centsToEuros(result.systemPriceCents))}
+        />
+        <PreviewValue term="APR" value={formatPercent(result.apr)} />
+        {showsOffers && result.principalCents >= 0 && (
+          <PreviewValue
+            term="Principal"
+            value={formatMoney(centsToEuros(result.principalCents))}
+          />
+        )}
+      </dl>
+      {showsOffers &&
+        (result.principalCents < 0 ? (
+          <p className="text-sm">{DOWN_PAYMENT_ABOVE_SYSTEM_PRICE}.</p>
+        ) : (
+          <ul className="flex flex-col gap-3">
+            {result.offers.map((offer) => (
+              <li key={offer.termYears} className="rounded-xl bg-card p-4">
+                <h3 className="text-sm font-semibold">
+                  {offer.termYears} years
+                </h3>
+                <p className="text-xl font-semibold tabular-nums">
+                  {formatMoney(centsToEuros(offer.monthlyPaymentCents))}
+                  <span className="text-sm font-normal text-muted-foreground">
+                    {" "}
+                    per month
+                  </span>
+                </p>
+              </li>
             ))}
-        </>
-      )}
+          </ul>
+        ))}
     </section>
   );
 }

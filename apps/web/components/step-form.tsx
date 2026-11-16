@@ -11,6 +11,7 @@ import type {
 import { Button } from "@/components/ui/button";
 import { FieldError, FieldGroup } from "@/components/ui/field";
 import { resolveStep, type Step } from "@/lib/steps";
+import { cn } from "@/lib/utils";
 
 /**
  * A form asked one step at a time. The step is in the URL (`?step=<id>`, none
@@ -37,7 +38,10 @@ export function StepForm<
   submitLabel: string;
   /** True while the next page loads, so a second click cannot submit again. */
   isLeaving: boolean;
-  /** Shown beside the step on desktop, below its fields on mobile. */
+  /**
+   * Shown beside the step on desktop, below its fields on mobile. Without one
+   * (null), the step takes the full width.
+   */
   preview?: (step: TSteps[number]) => ReactNode;
   children: (
     step: TSteps[number],
@@ -50,6 +54,7 @@ export function StepForm<
   const reached = useRef(0);
   const step: TSteps[number] = steps[index] ?? steps[0];
   const isLast = index === steps.length - 1;
+  const shownPreview = preview?.(step);
 
   const router = useRouter();
   // A reload on a later step has lost the earlier values: start again.
@@ -132,7 +137,12 @@ export function StepForm<
     >
       {/* On desktop the preview spans every row; the last, flexible row takes
           its extra height, so the buttons stay under the step. */}
-      <FieldGroup className="lg:grid lg:grid-cols-[1fr_20rem] lg:grid-rows-[auto_auto_auto_auto_1fr] lg:gap-x-12">
+      <FieldGroup
+        className={cn(
+          shownPreview &&
+            "lg:grid lg:grid-cols-[1fr_20rem] lg:grid-rows-[auto_auto_auto_auto_1fr] lg:gap-x-12",
+        )}
+      >
         <p className="text-sm text-muted-foreground lg:col-start-1">
           Step {index + 1} of {steps.length}
         </p>
@@ -141,9 +151,9 @@ export function StepForm<
             goBackTo(steps.findIndex((s) => s.id === id)),
           )}
         </div>
-        {preview && (
+        {shownPreview && (
           <div className="lg:sticky lg:top-8 lg:col-start-2 lg:row-span-5 lg:row-start-1 lg:self-start">
-            {preview(step)}
+            {shownPreview}
           </div>
         )}
         <FieldError

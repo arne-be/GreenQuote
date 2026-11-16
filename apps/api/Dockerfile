@@ -9,8 +9,8 @@ RUN pnpm dlx turbo@2.11.10 prune api --docker
 
 FROM base AS install
 COPY --from=prune /app/out/json/ .
-# Dev deps stay: the API runs its TypeScript source through @swc-node, as in `pnpm dev`.
-RUN pnpm install --frozen-lockfile --ignore-scripts
+# The API runs its TypeScript source through @swc-node (a prod dependency), as in `pnpm dev`.
+RUN pnpm install --frozen-lockfile --ignore-scripts --prod
 COPY --from=prune /app/out/full/ .
 
 FROM node:22-alpine

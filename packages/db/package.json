@@ -17,6 +17,7 @@
     "@node-rs/argon2": "catalog:",
     "drizzle-orm": "catalog:",
     "postgres": "catalog:",
+    "tsx": "catalog:",
     "zod": "catalog:"
   },
   "devDependencies": {
@@ -25,7 +26,6 @@
     "@types/node": "catalog:",
     "drizzle-kit": "catalog:",
     "eslint": "catalog:",
-    "tsx": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:"
   }

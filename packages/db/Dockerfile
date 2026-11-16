@@ -9,7 +9,7 @@ RUN pnpm dlx turbo@2.11.10 prune @greenquote/db --docker
 
 FROM base AS install
 COPY --from=prune /app/out/json/ .
-RUN pnpm install --frozen-lockfile --ignore-scripts
+RUN pnpm install --frozen-lockfile --ignore-scripts --prod
 COPY --from=prune /app/out/full/ .
 
 FROM node:22-alpine
@@ -17,4 +17,5 @@ WORKDIR /app
 COPY --from=install --chown=node:node /app .
 USER node
 WORKDIR /app/packages/db
-CMD ["sh", "-c", "node_modules/.bin/tsx src/migrate.ts && node_modules/.bin/tsx src/seed.ts"]
+# npm ships with the node image and runs the package's own scripts.
+CMD ["sh", "-c", "npm run db:migrate && npm run db:seed"]

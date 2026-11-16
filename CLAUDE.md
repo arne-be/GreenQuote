@@ -63,6 +63,7 @@ pnpm format               # prettier
 pnpm types                # tsc --noEmit everywhere
 pnpm test                 # unit + integration
 pnpm test:e2e             # Playwright, separate from pnpm test
+pnpm openapi              # regenerate docs/openapi.json (pre-commit runs it)
 ```
 
 Update this list when a script is added or renamed.

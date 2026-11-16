@@ -23,6 +23,9 @@
       "cache": false,
       "passThroughEnv": ["E2E_BASE_URL"]
     },
+    "openapi": {
+      "cache": false
+    },
     "db:migrate": {
       "cache": false
     },

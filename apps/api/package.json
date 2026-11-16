@@ -6,7 +6,8 @@
     "dev": "node --watch --import @swc-node/register/esm-register src/main.ts",
     "lint": "eslint . --max-warnings=0",
     "types": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "openapi": "node --env-file=../../.env.example --import @swc-node/register/esm-register src/openapi.ts"
   },
   "dependencies": {
     "@greenquote/config": "workspace:*",

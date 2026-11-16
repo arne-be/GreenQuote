@@ -1,5 +1,5 @@
 import { Controller, Get } from "@nestjs/common";
-import { ApiOkResponse, ApiTags } from "@nestjs/swagger";
+import { ApiOkResponse, ApiOperation, ApiTags } from "@nestjs/swagger";
 
 import { Public } from "../auth/public.decorator.js";
 
@@ -8,6 +8,7 @@ import { Public } from "../auth/public.decorator.js";
 export class HealthController {
   @Public()
   @Get()
+  @ApiOperation({ summary: "Check the API is up" })
   @ApiOkResponse({
     description:
       "The process is up (liveness only; the database is not checked)",

@@ -9,6 +9,7 @@ import cookieParser from "cookie-parser";
 import { Logger } from "nestjs-pino";
 import { cleanupOpenApiDoc } from "nestjs-zod";
 
+import { SESSION_TTL_SECONDS } from "./auth/session.js";
 import { errorResponse } from "./common/error-response.js";
 
 /**
@@ -38,7 +39,7 @@ export function configureApp(app: INestApplication): OpenAPIObject {
           type: "apiKey",
           in: "cookie",
           description:
-            "Register and sign-in set an httpOnly `session` cookie (`SameSite=Lax`, `Secure` in production) holding a signed JWT with the user's id and role, valid for one day; the browser sends it with every request. " +
+            `Register and sign-in set an httpOnly \`${SESSION_COOKIE}\` cookie (\`SameSite=Lax\`, \`Secure\` in production) holding a signed JWT with the user's id and role, valid for ${SESSION_TTL_SECONDS / 3600} hours; the browser sends it with every request. ` +
             "A missing, expired or tampered cookie gives 401. The role is read from the token, so a role change takes effect at the next sign-in.",
         })
         .addGlobalResponse({

@@ -710,7 +710,7 @@
         "type": "apiKey",
         "in": "cookie",
         "name": "session",
-        "description": "Register and sign-in set an httpOnly `session` cookie (`SameSite=Lax`, `Secure` in production) holding a signed JWT with the user's id and role, valid for one day; the browser sends it with every request. A missing, expired or tampered cookie gives 401. The role is read from the token, so a role change takes effect at the next sign-in."
+        "description": "Register and sign-in set an httpOnly `session` cookie (`SameSite=Lax`, `Secure` in production) holding a signed JWT with the user's id and role, valid for 24 hours; the browser sends it with every request. A missing, expired or tampered cookie gives 401. The role is read from the token, so a role change takes effect at the next sign-in."
       }
     },
     "schemas": {

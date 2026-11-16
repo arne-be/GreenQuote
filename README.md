@@ -163,7 +163,7 @@ The decisions that are hard to reverse are in [docs/adr](docs/adr):
   scoped by role.
 
 The API is described by its OpenAPI document: browse it in the Swagger UI at
-`/api/docs` on a running API, or read the committed
+`/api/docs` on a running API (raw JSON at `/api/docs-json`), or read the committed
 [docs/openapi.json](docs/openapi.json), so a PR diff shows every API change.
 `pnpm openapi` builds it from the same code the API serves; pre-commit runs it
 and CI fails when the committed file is stale. The Swagger UI stays on in

@@ -187,3 +187,30 @@ describe("GET /api/quotes/:id", () => {
       .expect(400);
   });
 });
+
+describe("OpenAPI document", () => {
+  it("describes and bounds the quote fields", async () => {
+    const { body } = (await request(app.getHttpServer())
+      .get("/api/docs-json")
+      .expect(200)) as {
+      body: { components: { schemas: Record<string, unknown> } };
+    };
+
+    expect(body.components.schemas).toMatchObject({
+      QuoteInputDto: {
+        properties: {
+          systemSizeKw: {
+            description: "The rated power of the solar system, in kW",
+            maximum: 10_000,
+          },
+        },
+      },
+      QuoteDto: {
+        properties: {
+          systemPrice: { minimum: 0, maximum: 12_000_000 },
+          offers: { minItems: 3, maxItems: 3 },
+        },
+      },
+    });
+  });
+});

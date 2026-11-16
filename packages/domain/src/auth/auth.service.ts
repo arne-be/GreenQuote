@@ -18,6 +18,8 @@ const userColumns = {
 };
 
 export class AuthService {
+  private dummyHash: Promise<string> | undefined;
+
   constructor(
     private readonly db: Db,
     private readonly hasher: PasswordHasher,
@@ -46,7 +48,12 @@ export class AuthService {
       .select({ ...userColumns, passwordHash: users.passwordHash })
       .from(users)
       .where(sql`lower(${users.email}) = ${input.email}`);
-    if (found === undefined) throw invalidCredentials();
+    if (found === undefined) {
+      // Verify anyway so an unknown email takes as long as a wrong password.
+      this.dummyHash ??= this.hasher.hash("dummy password for timing");
+      await this.hasher.verify(await this.dummyHash, input.password);
+      throw invalidCredentials();
+    }
     const { passwordHash, ...user } = found;
     if (!(await this.hasher.verify(passwordHash, input.password))) {
       throw invalidCredentials();

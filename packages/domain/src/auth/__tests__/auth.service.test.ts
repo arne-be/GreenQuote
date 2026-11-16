@@ -3,7 +3,7 @@ import {
   PostgreSqlContainer,
   type StartedPostgreSqlContainer,
 } from "@testcontainers/postgresql";
-import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 
 import { ConflictError, UnauthorisedError } from "../../errors.ts";
 import { AuthService, type PasswordHasher } from "../auth.service.ts";
@@ -88,6 +88,20 @@ describe("login", () => {
     const [a, b] = await Promise.all([wrongPassword, unknownEmail]);
     expect(a).toBeInstanceOf(UnauthorisedError);
     expect(b).toEqual(a);
+  });
+});
+
+describe("login timing", () => {
+  it("still checks a password for an unknown email, so it takes as long as a wrong password", async () => {
+    const verify = vi.fn((hash: string, password: string) =>
+      fakeHasher.verify(hash, password),
+    );
+    const timedAuth = new AuthService(db, { ...fakeHasher, verify });
+
+    await expect(
+      timedAuth.login({ email: "nobody@test.com", password: "enigma machine" }),
+    ).rejects.toThrow(UnauthorisedError);
+    expect(verify).toHaveBeenCalledOnce();
   });
 });
 

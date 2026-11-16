@@ -28,15 +28,11 @@ is in `.claude/skills/ask-matt/SKILL.md`.
 - **Build**: `implement` per ticket (test-first with `tdd`, closed by
   `code-review`), or `implement-spec` for a whole spec.
 - **Ship**: one branch per change off `main`, a PR whose body follows `pr`,
-  a posted review, the user's go-ahead, then a squash merge
-  (`gh pr merge --squash`). The PR title becomes the squash commit, so it is a
-  Conventional Commit. GitHub deletes the branch.
-  - **Posted review**: run `code-review` on the PR and post its findings with
-    `gh pr review <n> --comment --body-file <file>`. Re-run and re-post when
-    later commits change the code.
-  - **Go-ahead**: the user says in chat to merge that PR (GitHub cannot record
-    an author's approval of their own PR). Without both, an agent stops at the
-    open PR and reports its URL.
+  the review loop (`docs/agents/review-loop.md`: post a `code-review`, fix its
+  findings, repeat), the user's go-ahead in chat, then a squash merge
+  (`gh pr merge --squash`). Until the loop has ended and the user says to
+  merge, an agent stops at the open PR. The PR title becomes the squash commit,
+  so it is a Conventional Commit. GitHub deletes the branch.
 
 ## Layout
 

@@ -56,10 +56,12 @@ describe("seed", () => {
     await seed(db, { adminPassword, demoPassword });
 
     const rows = await db.select().from(quotes);
-    const owners = await db.select().from(users);
-    expect(owners.length).toBeGreaterThanOrEqual(4);
+    const seededUsers = await db.select().from(users);
+    expect(seededUsers.length).toBeGreaterThanOrEqual(4);
     // Every user, the admin included, owns some quotes.
-    expect(new Set(rows.map((quote) => quote.userId)).size).toBe(owners.length);
+    expect(new Set(rows.map((quote) => quote.userId)).size).toBe(
+      seededUsers.length,
+    );
     expect(new Set(rows.map((quote) => quote.riskBand))).toEqual(
       new Set(["A", "B", "C"]),
     );

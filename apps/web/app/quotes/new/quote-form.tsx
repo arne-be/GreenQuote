@@ -339,10 +339,7 @@ function QuotePreview({
             ) : (
               <ul className="flex flex-col gap-3">
                 {result.offers.map((offer) => (
-                  <li
-                    key={offer.termYears}
-                    className="rounded-xl bg-card p-4 shadow-[0_24px_64px_rgba(0,0,0,.12),0_2px_8px_rgba(0,0,0,.06)]"
-                  >
+                  <li key={offer.termYears} className="rounded-xl bg-card p-4">
                     <h3 className="text-sm font-semibold">
                       {offer.termYears} years
                     </h3>

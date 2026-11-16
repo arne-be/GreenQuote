@@ -150,6 +150,21 @@ describe("GET /api/auth/me", () => {
       .set("Cookie", `session=${token}`)
       .expect(401);
   });
+
+  it("rejects a token signed with another algorithm than HS256 with 401", async () => {
+    const registered = await register("hs512@test.com");
+    const token = await app
+      .get(JwtService)
+      .signAsync(
+        { sub: (registered.body as { id: string }).id, role: "user" },
+        { algorithm: "HS512" },
+      );
+
+    await request(app.getHttpServer())
+      .get("/api/auth/me")
+      .set("Cookie", `session=${token}`)
+      .expect(401);
+  });
 });
 
 describe("POST /api/auth/logout", () => {

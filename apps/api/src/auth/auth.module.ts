@@ -15,7 +15,8 @@ import { SESSION_TTL_SECONDS } from "./session.js";
       inject: [ConfigService],
       useFactory: (config: ConfigService<Env, true>) => ({
         secret: config.get("JWT_SECRET", { infer: true }),
-        signOptions: { expiresIn: SESSION_TTL_SECONDS },
+        signOptions: { algorithm: "HS256", expiresIn: SESSION_TTL_SECONDS },
+        verifyOptions: { algorithms: ["HS256"] },
       }),
     }),
   ],

@@ -18,12 +18,12 @@ export function QuoteTable({
   list,
   query,
   caption,
-  showPeople = false,
+  isAdminView = false,
 }: {
   list: QuoteList;
   query: QuoteListQuery;
   caption: string;
-  showPeople?: boolean;
+  isAdminView?: boolean;
 }) {
   const { q, limit, offset } = query;
   const pageHref = (pageOffset: number) =>
@@ -42,8 +42,8 @@ export function QuoteTable({
         <TableHeader>
           <TableRow>
             <TableHead scope="col">Date</TableHead>
-            {showPeople && <TableHead scope="col">User</TableHead>}
-            {showPeople && <TableHead scope="col">Applicant</TableHead>}
+            {isAdminView && <TableHead scope="col">User</TableHead>}
+            {isAdminView && <TableHead scope="col">Applicant</TableHead>}
             <TableHead scope="col" className="text-right">
               System size
             </TableHead>
@@ -60,22 +60,8 @@ export function QuoteTable({
           {list.items.map((quote) => (
             <TableRow key={quote.id}>
               <TableCell>{formatDate(new Date(quote.createdAt))}</TableCell>
-              {showPeople && (
-                <TableCell>
-                  {quote.user.fullName}
-                  <br />
-                  <span className="text-muted-foreground">
-                    {quote.user.email}
-                  </span>
-                </TableCell>
-              )}
-              {showPeople && (
-                <TableCell>
-                  {quote.fullName}
-                  <br />
-                  <span className="text-muted-foreground">{quote.email}</span>
-                </TableCell>
-              )}
+              {isAdminView && <NameAndEmailCell {...quote.user} />}
+              {isAdminView && <NameAndEmailCell {...quote} />}
               <TableCell className="text-right tabular-nums">
                 {formatKw(quote.systemSizeKw)}
               </TableCell>
@@ -117,5 +103,21 @@ export function QuoteTable({
         )}
       </nav>
     </>
+  );
+}
+
+function NameAndEmailCell({
+  fullName,
+  email,
+}: {
+  fullName: string;
+  email: string;
+}) {
+  return (
+    <TableCell>
+      {fullName}
+      <br />
+      <span className="text-muted-foreground">{email}</span>
+    </TableCell>
   );
 }

@@ -42,7 +42,7 @@ export default async function AdminQuotesPage({
         list={list}
         query={parsed.data}
         caption="All quotes"
-        showPeople
+        isAdminView
       />
     </main>
   );

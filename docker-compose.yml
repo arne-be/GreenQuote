@@ -46,6 +46,9 @@ services:
       dockerfile: apps/web/Dockerfile
       args:
         API_URL: http://api:3001
+    environment:
+      # Read at runtime too: server components fetch the API directly.
+      API_URL: http://api:3001
     ports:
       - "3000:3000"
     depends_on:

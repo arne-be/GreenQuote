@@ -30,6 +30,10 @@ is in `.claude/skills/ask-matt/SKILL.md`.
 - **Ship**: one branch per change off `main`, a PR whose body follows `pr`,
   then a squash merge (`gh pr merge --squash`). The PR title becomes the
   squash commit, so it is a Conventional Commit. GitHub deletes the branch.
+- **Every PR is reviewed before it merges**: run `code-review` on the PR and
+  post the findings on it (`gh pr review <n> --comment`), then wait for the
+  human's go-ahead. An agent never merges a PR without both, and re-runs the
+  review when later commits change the code.
 
 ## Layout
 
@@ -65,7 +69,7 @@ Update this list when a script is added or renamed.
 
 - Conventional Commits, enforced by commitlint: `<type>(<scope>): <description>`
   in imperative mood. Scope is the package or area (`feat(api): add quote
-  endpoint`).
+endpoint`).
 - Small commits that each build and pass tests: reviewers read the PR's
   history.
 - Let the pre-commit hook run; never `--no-verify`.

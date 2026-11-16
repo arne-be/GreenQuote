@@ -1,8 +1,4 @@
-import { createDb, type Db, migrateDb } from "@greenquote/db";
-import {
-  PostgreSqlContainer,
-  type StartedPostgreSqlContainer,
-} from "@testcontainers/postgresql";
+import { startTestDb, type TestDb } from "@greenquote/db/testing";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 
 import { ConflictError, UnauthorisedError } from "../../errors.ts";
@@ -13,21 +9,15 @@ const fakeHasher: PasswordHasher = {
   verify: (hash, password) => Promise.resolve(hash === `hashed:${password}`),
 };
 
-let container: StartedPostgreSqlContainer;
-let db: Db;
+let testDb: TestDb;
 let auth: AuthService;
 
 beforeAll(async () => {
-  container = await new PostgreSqlContainer("postgres:17-alpine").start();
-  db = createDb(container.getConnectionUri());
-  await migrateDb(db);
-  auth = new AuthService(db, fakeHasher);
-}, 120_000);
-
-afterAll(async () => {
-  await db.$client.end();
-  await container.stop();
+  testDb = await startTestDb();
+  auth = new AuthService(testDb.db, fakeHasher);
 });
+
+afterAll(() => testDb.stop());
 
 describe("register", () => {
   it("creates a user with role user and returns it without the password hash", async () => {
@@ -96,7 +86,7 @@ describe("login timing", () => {
     const verify = vi.fn((hash: string, password: string) =>
       fakeHasher.verify(hash, password),
     );
-    const timedAuth = new AuthService(db, { ...fakeHasher, verify });
+    const timedAuth = new AuthService(testDb.db, { ...fakeHasher, verify });
 
     await expect(
       timedAuth.login({ email: "nobody@test.com", password: "enigma machine" }),

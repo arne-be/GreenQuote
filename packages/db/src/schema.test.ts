@@ -1,48 +1,21 @@
-import { execFileSync } from "node:child_process";
-
-import {
-  PostgreSqlContainer,
-  type StartedPostgreSqlContainer,
-} from "@testcontainers/postgresql";
 import { eq } from "drizzle-orm";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
-import { createDb, type Db } from "./client.js";
-import { offers, quotes, users } from "./schema/index.js";
+import { offers, quotes } from "./schema/index.js";
+import { createUser, startTestDb, type TestDb } from "./testing.js";
 
-let container: StartedPostgreSqlContainer;
-let db: Db;
-
-const runScript = (script: string) =>
-  execFileSync("pnpm", ["exec", "tsx", script], {
-    env: {
-      ...process.env,
-      DATABASE_URL: container.getConnectionUri(),
-    },
-  });
+let testDb: TestDb;
 
 beforeAll(async () => {
-  container = await new PostgreSqlContainer("postgres:17-alpine").start();
-  runScript("src/migrate.ts");
-  db = createDb(container.getConnectionUri());
-}, 120_000);
-
-afterAll(async () => {
-  await db.$client.end();
-  await container.stop();
+  testDb = await startTestDb();
 });
+
+afterAll(() => testDb.stop());
 
 describe("quote with offers", () => {
   it("is read back with its three offers", async () => {
-    const [user] = await db
-      .insert(users)
-      .values({
-        fullName: "Ada Lovelace",
-        email: "ada@test.com",
-        passwordHash: "hash",
-      })
-      .returning();
-    if (user === undefined) throw new Error("user not inserted");
+    const { db } = testDb;
+    const user = await createUser(db);
 
     const [quote] = await db
       .insert(quotes)

@@ -1,3 +1,4 @@
+import { containerTestTimeouts } from "@greenquote/config/vitest";
 import swc from "unplugin-swc";
 import { defineConfig } from "vitest/config";
 
@@ -5,8 +6,7 @@ import { defineConfig } from "vitest/config";
 export default defineConfig({
   plugins: [swc.vite()],
   test: {
-    // Postgres runs in testcontainers, and turbo tests packages in parallel; 5 s is too tight on CI.
-    testTimeout: 30_000,
+    ...containerTestTimeouts,
     env: {
       DATABASE_URL:
         "postgres://greenquote:greenquote@localhost:5432/greenquote",

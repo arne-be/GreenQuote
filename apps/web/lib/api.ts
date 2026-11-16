@@ -5,6 +5,8 @@ import {
   userSchema,
 } from "@greenquote/domain";
 
+import { env } from "@/env";
+
 /** A non-2xx answer from the API, with its status so forms can map it to a field. */
 export class ApiError extends Error {
   constructor(
@@ -13,6 +15,19 @@ export class ApiError extends Error {
   ) {
     super(message);
   }
+}
+
+/** The signed-in user, or null without a valid session. Server only: pass the request's cookie header. */
+export async function getCurrentUser(cookie: string): Promise<User | null> {
+  const response = await fetch(`${env.API_URL}/api/auth/me`, {
+    headers: { cookie },
+    cache: "no-store",
+  });
+  if (response.status === 401) return null;
+  if (!response.ok) {
+    throw new ApiError(response.status, "GET /api/auth/me failed");
+  }
+  return userSchema.parse(await response.json());
 }
 
 export async function register(input: RegisterInput): Promise<User> {

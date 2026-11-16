@@ -81,7 +81,7 @@ export function LoginForm() {
           Sign in
         </Button>
         <FieldDescription>
-          No account yet? <Link href="/register">Create one</Link>
+          Not registered yet? <Link href="/register">Register</Link>
         </FieldDescription>
       </FieldGroup>
     </form>

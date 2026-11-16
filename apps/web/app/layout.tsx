@@ -2,12 +2,13 @@ import "./globals.css";
 
 import type { Metadata } from "next";
 import { DM_Sans } from "next/font/google";
+import { cookies } from "next/headers";
 import Image from "next/image";
 import Link from "next/link";
 import type { ReactNode } from "react";
 
 import { LogoutButton } from "@/components/logout-button";
-import { getCurrentUser } from "@/lib/session";
+import { getCurrentUser } from "@/lib/api";
 
 const dmSans = DM_Sans({
   subsets: ["latin"],
@@ -25,7 +26,7 @@ export default async function RootLayout({
 }: {
   children: ReactNode;
 }) {
-  const user = await getCurrentUser();
+  const user = await getCurrentUser((await cookies()).toString());
 
   return (
     <html lang="de" className={dmSans.variable}>

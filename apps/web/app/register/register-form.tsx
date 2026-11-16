@@ -37,7 +37,7 @@ export function RegisterForm() {
         return;
       }
       form.setError("root", {
-        message: "Could not create your account. Please try again.",
+        message: "Could not register you. Please try again.",
       });
     }
   });
@@ -90,18 +90,14 @@ export function RegisterForm() {
                 type="password"
                 autoComplete="new-password"
                 aria-invalid={fieldState.invalid}
-                aria-describedby="password-hint"
               />
-              <FieldDescription id="password-hint">
-                At least 8 characters.
-              </FieldDescription>
               <FieldError errors={[fieldState.error]} />
             </Field>
           )}
         />
         <FieldError errors={[form.formState.errors.root]} />
         <Button type="submit" disabled={form.formState.isSubmitting}>
-          Create account
+          Register
         </Button>
         <FieldDescription>
           Already registered? <Link href="/login">Sign in</Link>

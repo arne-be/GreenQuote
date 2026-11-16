@@ -97,6 +97,17 @@ test("the down payment slider stops at the system price, and a lower size lowers
 }) => {
   await fillUpToDownPayment(page, "6");
   const slider = page.getByRole("slider", { name: "Down payment" });
+  // While dragged the preview is busy, so only the settled value is announced.
+  const box = await slider.boundingBox();
+  if (box === null) throw new Error("The slider is not visible.");
+  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(box.x + 60, box.y + box.height / 2);
+  const preview = page.getByRole("region", { name: "Preview" });
+  await expect(preview).toHaveAttribute("aria-busy", "true");
+  await page.mouse.up();
+  await expect(preview).toHaveAttribute("aria-busy", "false");
+
   await slider.focus();
   await page.keyboard.press("End");
   await page.keyboard.press("ArrowRight");

@@ -219,7 +219,8 @@ function DownPaymentStep({
             value={[Math.min(Number(field.value) || 0, maxEuros)]}
             onValueChange={([euros]) => field.onChange(String(euros ?? 0))}
             onPointerDown={() => onSlidingChange(true)}
-            onPointerUp={() => onSlidingChange(false)}
+            // After pointerup and pointercancel alike, as the slider captures the pointer.
+            onLostPointerCapture={() => onSlidingChange(false)}
             className="my-2"
           />
           <Input
@@ -338,7 +339,10 @@ function QuotePreview({
             ) : (
               <ul className="flex flex-col gap-3">
                 {result.offers.map((offer) => (
-                  <li key={offer.termYears} className="rounded-xl bg-card p-4">
+                  <li
+                    key={offer.termYears}
+                    className="rounded-xl bg-card p-4 shadow-[0_24px_64px_rgba(0,0,0,.12),0_2px_8px_rgba(0,0,0,.06)]"
+                  >
                     <h3 className="text-sm font-semibold">
                       {offer.termYears} years
                     </h3>

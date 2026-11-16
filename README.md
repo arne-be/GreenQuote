@@ -186,6 +186,9 @@ The endpoints, authentication and error responses are described in
   applicant starts from a sensible size instead of guessing one.
 - More assets than solar panels, such as a battery storage system, each with its
   own recommended size and price in the quote.
+- Estimated monthly savings on the electricity bill from the system size, shown
+  next to each offer's monthly payment, so the applicant sees what the system
+  costs them net of what it saves.
 - Email verification.
 - A `pg_trgm` index for the `q` search ([#34](https://github.com/arne-be/GreenQuote/issues/34)).
 

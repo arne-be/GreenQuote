@@ -5,8 +5,8 @@ import {
 } from "@testcontainers/postgresql";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
-import { ConflictError, UnauthorisedError } from "../../errors.js";
-import { AuthService, type PasswordHasher } from "../auth.service.js";
+import { ConflictError, UnauthorisedError } from "../../errors.ts";
+import { AuthService, type PasswordHasher } from "../auth.service.ts";
 
 const fakeHasher: PasswordHasher = {
   hash: (password) => Promise.resolve(`hashed:${password}`),

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { loginSchema, registerSchema } from "../auth.schema.js";
+import { loginSchema, registerSchema } from "../auth.schema.ts";
 
 const valid = {
   fullName: "Ada Lovelace",

@@ -3,8 +3,8 @@ import { describe, expect, it } from "vitest";
 import {
   calculateMonthlyPaymentCents,
   calculateQuoteResult,
-} from "../pricing.js";
-import { PRICING_RULES, PRICING_RULES_VERSION } from "../pricing-rules.js";
+} from "../pricing.ts";
+import { PRICING_RULES, PRICING_RULES_VERSION } from "../pricing-rules.ts";
 
 describe("pricing rules", () => {
   it("only change together with a version bump", () => {

@@ -1,8 +1,8 @@
 import { type Db, users } from "@greenquote/db";
 import { eq, sql } from "drizzle-orm";
 
-import { ConflictError, UnauthorisedError } from "../errors.js";
-import type { Actor, LoginInput, RegisterInput, User } from "./auth.schema.js";
+import { ConflictError, UnauthorisedError } from "../errors.ts";
+import type { Actor, LoginInput, RegisterInput, User } from "./auth.schema.ts";
 
 export interface PasswordHasher {
   hash(password: string): Promise<string>;

@@ -1,5 +1,5 @@
-import type { QuoteInputs, QuoteResult, RiskBand } from "./pricing.types.js";
-import { PRICING_RULES, PRICING_RULES_VERSION } from "./pricing-rules.js";
+import type { QuoteInputs, QuoteResult, RiskBand } from "./pricing.types.ts";
+import { PRICING_RULES, PRICING_RULES_VERSION } from "./pricing-rules.ts";
 
 export function calculateQuoteResult({
   systemSizeKw,

@@ -9,7 +9,10 @@ describe("validateEnv", () => {
 
   it("defaults PORT to 3001", () => {
     expect(
-      validateEnv({ DATABASE_URL: "postgres://u:p@localhost:5432/db" }).PORT,
+      validateEnv({
+        DATABASE_URL: "postgres://u:p@localhost:5432/db",
+        JWT_SECRET: "x".repeat(32),
+      }).PORT,
     ).toBe(3001);
   });
 });

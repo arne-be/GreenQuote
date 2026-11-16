@@ -7,8 +7,10 @@ import { APP_FILTER, APP_PIPE } from "@nestjs/core";
 import { LoggerModule } from "nestjs-pino";
 import { ZodValidationPipe } from "nestjs-zod";
 
+import { AuthModule } from "./auth/auth.module.js";
 import { DomainExceptionFilter } from "./common/domain-exception.filter.js";
 import { validateEnv } from "./config/env.js";
+import { DatabaseModule } from "./database.module.js";
 import { HealthController } from "./health/health.controller.js";
 
 @Module({
@@ -29,6 +31,8 @@ import { HealthController } from "./health/health.controller.js";
         ],
       },
     }),
+    DatabaseModule,
+    AuthModule,
   ],
   controllers: [HealthController],
   providers: [

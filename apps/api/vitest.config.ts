@@ -8,6 +8,7 @@ export default defineConfig({
     env: {
       DATABASE_URL:
         "postgres://greenquote:greenquote@localhost:5432/greenquote",
+      JWT_SECRET: "test-jwt-secret-at-least-32-characters",
     },
   },
 });

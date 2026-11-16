@@ -20,8 +20,8 @@ const date = new Intl.DateTimeFormat("de-DE", {
   timeZone: "Europe/Berlin",
 });
 
-/** Money arrives in integer cents, as the domain stores it. */
-export const formatMoney = (cents: number) => money.format(cents / 100);
+/** Money arrives in euros, as the API returns it. */
+export const formatMoney = (euros: number) => money.format(euros);
 
 /** `fraction` as stored for an APR: 0.069 is 6,9 %. */
 export const formatPercent = (fraction: number) => percent.format(fraction);
@@ -29,4 +29,6 @@ export const formatPercent = (fraction: number) => percent.format(fraction);
 export const formatKw = (kilowatts: number) =>
   `${decimal.format(kilowatts)}\u00a0kW`;
 
+export const formatKwh = (kilowattHours: number) =>
+  `${decimal.format(kilowattHours)}\u00a0kWh`;
 export const formatDate = (value: Date) => date.format(value);

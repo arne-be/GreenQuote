@@ -1,5 +1,8 @@
 import {
   type LoginInput,
+  type Quote,
+  type QuoteInput,
+  quoteSchema,
   type RegisterInput,
   type User,
   userSchema,
@@ -28,6 +31,27 @@ export async function getCurrentUser(cookie: string): Promise<User | null> {
     throw new ApiError(response.status, "GET /api/auth/me failed");
   }
   return userSchema.parse(await response.json());
+}
+
+/** The quote, or null when it does not exist or is not the user's. Server only, like getCurrentUser. */
+export async function getQuote(
+  cookie: string,
+  id: string,
+): Promise<Quote | null> {
+  const response = await fetch(`${env.API_URL}/api/quotes/${id}`, {
+    headers: { cookie },
+    cache: "no-store",
+  });
+  // 400 is an id that is not a UUID: no such quote either.
+  if (response.status === 404 || response.status === 400) return null;
+  if (!response.ok) {
+    throw new ApiError(response.status, "GET /api/quotes/:id failed");
+  }
+  return quoteSchema.parse(await response.json());
+}
+
+export async function createQuote(input: QuoteInput): Promise<Quote> {
+  return quoteSchema.parse(await post("/api/quotes", input));
 }
 
 export async function register(input: RegisterInput): Promise<User> {

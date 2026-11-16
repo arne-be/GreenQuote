@@ -58,6 +58,8 @@ export const quotes = pgTable(
   },
   (t) => [
     index("quotes_user_id_created_at_index").on(t.userId, t.createdAt),
+    // Serves the admin list, which sorts every quote by created_at DESC, id DESC.
+    index("quotes_created_at_id_index").on(t.createdAt, t.id),
     check(
       "quotes_monthly_consumption_kwh_check",
       sql`${t.monthlyConsumptionKwh} > 0`,

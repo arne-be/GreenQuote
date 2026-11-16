@@ -1,37 +1,27 @@
 import { execFileSync } from "node:child_process";
 
-import {
-  PostgreSqlContainer,
-  type StartedPostgreSqlContainer,
-} from "@testcontainers/postgresql";
 import { eq } from "drizzle-orm";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
-import { createDb, type Db } from "./client.js";
 import { offers, quotes, users } from "./schema/index.js";
+import { createUser, startTestDb, type TestDb } from "./testing.js";
 
-let container: StartedPostgreSqlContainer;
-let db: Db;
+let testDb: TestDb;
 
 const runScript = (script: string) =>
   execFileSync("pnpm", ["exec", "tsx", script], {
     env: {
       ...process.env,
-      DATABASE_URL: container.getConnectionUri(),
+      DATABASE_URL: testDb.databaseUrl,
       SEED_ADMIN_PASSWORD: "test-admin-password",
     },
   });
 
 beforeAll(async () => {
-  container = await new PostgreSqlContainer("postgres:17-alpine").start();
-  runScript("src/migrate.ts");
-  db = createDb(container.getConnectionUri());
-}, 120_000);
-
-afterAll(async () => {
-  await db.$client.end();
-  await container.stop();
+  testDb = await startTestDb();
 });
+
+afterAll(() => testDb.stop());
 
 describe("seed", () => {
   it("leaves one admin when run twice", () => {
@@ -39,22 +29,15 @@ describe("seed", () => {
     runScript("src/seed.ts");
 
     return expect(
-      db.select().from(users).where(eq(users.role, "admin")),
+      testDb.db.select().from(users).where(eq(users.role, "admin")),
     ).resolves.toMatchObject([{ email: "admin@test.com" }]);
   });
 });
 
 describe("quote with offers", () => {
   it("is read back with its three offers", async () => {
-    const [user] = await db
-      .insert(users)
-      .values({
-        fullName: "Ada Lovelace",
-        email: "ada@test.com",
-        passwordHash: "hash",
-      })
-      .returning();
-    if (user === undefined) throw new Error("user not inserted");
+    const { db } = testDb;
+    const user = await createUser(db);
 
     const [quote] = await db
       .insert(quotes)

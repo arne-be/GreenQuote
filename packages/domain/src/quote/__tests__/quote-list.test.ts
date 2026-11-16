@@ -1,86 +1,59 @@
-import { createDb, type Db, migrateDb, quotes, users } from "@greenquote/db";
-import {
-  PostgreSqlContainer,
-  type StartedPostgreSqlContainer,
-} from "@testcontainers/postgresql";
+import { createUser, startTestDb, type TestDb } from "@greenquote/db/testing";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 import type { Actor } from "../../auth/auth.schema.ts";
 import { QuoteService } from "../quote.service.ts";
+import { createQuote } from "./quote.fixture.ts";
 
-let container: StartedPostgreSqlContainer;
-let db: Db;
+let testDb: TestDb;
 let service: QuoteService;
 let ada: Actor;
 let grace: Actor;
 let admin: Actor;
 
-async function insertUser(
+// 8.5 kW at 400 kWh a month: €10,200, risk band B.
+function insertQuote(
+  actor: Actor,
   fullName: string,
   email: string,
-  role: Actor["role"],
-) {
-  const [user] = await db
-    .insert(users)
-    .values({ fullName, email, passwordHash: "not used", role })
-    .returning({ id: users.id, role: users.role });
-  if (user === undefined) throw new Error("Insert returned no user");
-  return user;
-}
-
-function insertQuote(
-  userId: string,
-  applicantName: string,
-  applicantEmail: string,
   createdAt: string,
 ) {
-  return db.insert(quotes).values({
-    userId,
-    applicantName,
-    applicantEmail,
-    applicantAddress: "Hauptstraße 1, 10115 Berlin",
+  return createQuote(testDb.db, actor, {
+    fullName,
+    email,
+    systemSizeKw: 8.5,
     monthlyConsumptionKwh: 400,
-    systemSizeKw: "8.50",
-    downPaymentCents: 0,
-    systemPriceCents: 1_020_000,
-    riskBand: "B",
-    apr: "0.0690",
-    pricingRulesVersion: "test",
     createdAt: new Date(createdAt),
   });
 }
 
 beforeAll(async () => {
-  container = await new PostgreSqlContainer("postgres:17-alpine").start();
-  db = createDb(container.getConnectionUri());
-  await migrateDb(db);
+  testDb = await startTestDb();
+  const { db } = testDb;
   service = new QuoteService(db);
 
-  ada = await insertUser("Ada Lovelace", "ada@test.com", "user");
-  grace = await insertUser("Grace Hopper", "grace@test.com", "user");
-  admin = await insertUser("Alan Admin", "admin@test.com", "admin");
-  await insertQuote(ada.id, "Ada Lovelace", "ada@test.com", "2026-01-01");
-  await insertQuote(
-    ada.id,
-    "Charles Babbage",
-    "charles@test.com",
-    "2026-01-02",
-  );
+  ada = await createUser(db, {
+    fullName: "Ada Lovelace",
+    email: "ada@test.com",
+  });
+  grace = await createUser(db, {
+    fullName: "Grace Hopper",
+    email: "grace@test.com",
+  });
+  admin = await createUser(db, {
+    fullName: "Alan Admin",
+    email: "admin@test.com",
+    role: "admin",
+  });
+  await insertQuote(ada, "Ada Lovelace", "ada@test.com", "2026-01-01");
+  await insertQuote(ada, "Charles Babbage", "charles@test.com", "2026-01-02");
   // Same timestamp as each other: order must still be stable (id breaks the tie).
-  await insertQuote(grace.id, "Grace Hopper", "grace@test.com", "2026-01-03");
-  await insertQuote(grace.id, "Howard Aiken", "howard@test.com", "2026-01-03");
-  await insertQuote(
-    grace.id,
-    "Ada Namesake",
-    "namesake@test.com",
-    "2026-01-04",
-  );
-}, 120_000);
-
-afterAll(async () => {
-  await db.$client.end();
-  await container.stop();
+  await insertQuote(grace, "Grace Hopper", "grace@test.com", "2026-01-03");
+  await insertQuote(grace, "Howard Aiken", "howard@test.com", "2026-01-03");
+  await insertQuote(grace, "Ada Namesake", "namesake@test.com", "2026-01-04");
 });
+
+afterAll(() => testDb.stop());
 
 const all = { limit: 100, offset: 0 };
 

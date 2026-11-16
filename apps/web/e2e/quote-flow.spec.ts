@@ -9,9 +9,11 @@ test("a new user requests a quote once, even clicking submit twice, and sees the
 
   await page.goto("/register");
   await page.getByLabel("Full name").fill("Erika Example");
+  await page.getByRole("button", { name: "Next" }).click();
   await page.getByLabel("Email").fill(email);
+  await page.getByRole("button", { name: "Next" }).click();
   await page.getByLabel("Password").fill("e2e-password");
-  await page.getByRole("button", { name: "Register" }).click();
+  await page.getByRole("button", { name: "Create account" }).click();
 
   await expect(
     page.getByRole("heading", { name: "Request a quote" }),

@@ -5,17 +5,15 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 
+import { TextField } from "@/components/text-field";
 import { Button } from "@/components/ui/button";
 import {
-  Field,
   FieldDescription,
   FieldError,
   FieldGroup,
-  FieldLabel,
 } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
 import { ApiError, login } from "@/lib/api";
 
 export function LoginForm() {
@@ -46,39 +44,19 @@ export function LoginForm() {
   return (
     <form noValidate onSubmit={(event) => void handleSubmit(event)}>
       <FieldGroup>
-        <Controller
+        <TextField
           control={form.control}
           name="email"
-          render={({ field, fieldState }) => (
-            <Field data-invalid={fieldState.invalid}>
-              <FieldLabel htmlFor="email">Email</FieldLabel>
-              <Input
-                {...field}
-                id="email"
-                type="email"
-                autoComplete="email"
-                aria-invalid={fieldState.invalid}
-              />
-              <FieldError errors={[fieldState.error]} />
-            </Field>
-          )}
+          label="Email"
+          type="email"
+          autoComplete="email"
         />
-        <Controller
+        <TextField
           control={form.control}
           name="password"
-          render={({ field, fieldState }) => (
-            <Field data-invalid={fieldState.invalid}>
-              <FieldLabel htmlFor="password">Password</FieldLabel>
-              <Input
-                {...field}
-                id="password"
-                type="password"
-                autoComplete="current-password"
-                aria-invalid={fieldState.invalid}
-              />
-              <FieldError errors={[fieldState.error]} />
-            </Field>
-          )}
+          label="Password"
+          type="password"
+          autoComplete="current-password"
         />
         <FieldError errors={[form.formState.errors.root]} />
         <Button

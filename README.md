@@ -173,10 +173,9 @@ The endpoints, authentication and error responses are described in
 ## CI/CD
 
 CI already runs on every pull request and on `main`. Deploys would run in
-GitHub Actions too, with one branch per environment: `main` is staging and
-`production` is production. Every merge into `main` deploys staging;
-production deploys when a pull request into the `production` branch is
-merged. Each deploy builds the three images (the Dockerfiles already exist),
+GitHub Actions too. Once CI passes, every merge into `main` deploys staging,
+and a pull request merged into the `production` branch deploys production.
+Each deploy builds the three images (the Dockerfiles already exist),
 tags them with the commit SHA, pushes them to a registry, runs the migrate
 image as a one-off job, then deploys the API and the web app. Rolling back
 means redeploying the previous images, which is why migrations have to stay

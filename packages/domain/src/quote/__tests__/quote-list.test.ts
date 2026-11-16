@@ -6,11 +6,11 @@ import {
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 import type { Actor } from "../../auth/auth.schema.ts";
-import { QuoteListService } from "../quote-list.service.ts";
+import { QuoteService } from "../quote.service.ts";
 
 let container: StartedPostgreSqlContainer;
 let db: Db;
-let list: QuoteListService;
+let list: QuoteService;
 let ada: Actor;
 let grace: Actor;
 let admin: Actor;
@@ -54,7 +54,7 @@ beforeAll(async () => {
   container = await new PostgreSqlContainer("postgres:17-alpine").start();
   db = createDb(container.getConnectionUri());
   await migrateDb(db);
-  list = new QuoteListService(db);
+  list = new QuoteService(db);
 
   ada = await insertUser("Ada Lovelace", "ada@test.com", "user");
   grace = await insertUser("Grace Hopper", "grace@test.com", "user");

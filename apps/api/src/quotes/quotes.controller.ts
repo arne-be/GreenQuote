@@ -30,7 +30,6 @@ import {
 import { createZodDto } from "nestjs-zod";
 
 import { CurrentUser } from "../auth/current-user.decorator.js";
-import { QuoteListService } from "./quote-list.service.js";
 import { QuotesService } from "./quotes.service.js";
 
 class QuoteInputDto extends createZodDto(quoteInputSchema) {}
@@ -43,10 +42,7 @@ class QuoteListDto extends createZodDto(quoteListSchema) {}
 @ApiUnauthorizedResponse({ description: "No valid session" })
 @Controller("quotes")
 export class QuotesController {
-  constructor(
-    private readonly quotes: QuotesService,
-    private readonly quoteList: QuoteListService,
-  ) {}
+  constructor(private readonly quotes: QuotesService) {}
 
   @Get()
   @ApiOperation({
@@ -67,7 +63,7 @@ export class QuotesController {
     @CurrentUser() actor: Actor,
     @Query() query: QuoteListQueryDto,
   ): Promise<QuoteList> {
-    return this.quoteList.listQuotes(actor, query);
+    return this.quotes.listQuotes(actor, query);
   }
 
   @Post()

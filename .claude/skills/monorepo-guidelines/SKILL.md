@@ -12,7 +12,8 @@ description: Cross-cutting rules for this pnpm + Turborepo monorepo - where code
 | Domain & orchestration | `packages/domain`  | Business rules, DB access through Drizzle, shared Zod schemas, errors  |
 | HTTP                   | `apps/api`         | Nest modules, controllers, guards, DI wiring, HTTP error mapping       |
 | UI                     | `apps/web`         | Next.js pages and components; renders data, holds no business rules    |
-| Persistence schema     | `packages/db`      | Drizzle tables, migrations, seed                                       |
+| Persistence schema     | `packages/db`      | Drizzle tables, migrations                                             |
+| Seed                   | `packages/seed`    | `pnpm db:seed`: admin and demo data, through domain services           |
 | Tooling                | `packages/config`  | Shared ESLint flat config and tsconfig presets                          |
 
 **Default:** new behaviour starts in `packages/domain`. An app adds only the

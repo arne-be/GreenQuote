@@ -18,7 +18,6 @@ const runScript = (script: string) =>
     env: {
       ...process.env,
       DATABASE_URL: container.getConnectionUri(),
-      SEED_ADMIN_PASSWORD: "test-admin-password",
     },
   });
 
@@ -31,17 +30,6 @@ beforeAll(async () => {
 afterAll(async () => {
   await db.$client.end();
   await container.stop();
-});
-
-describe("seed", () => {
-  it("leaves one admin when run twice", () => {
-    runScript("src/seed.ts");
-    runScript("src/seed.ts");
-
-    return expect(
-      db.select().from(users).where(eq(users.role, "admin")),
-    ).resolves.toMatchObject([{ email: "admin@test.com" }]);
-  });
 });
 
 describe("quote with offers", () => {

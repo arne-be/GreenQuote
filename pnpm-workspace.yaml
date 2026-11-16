@@ -7,6 +7,7 @@ catalog:
   "@node-rs/argon2": ^2.2.2
   "@testcontainers/postgresql": ^11.14.0
   "@types/node": ^22.20.5
+  date-fns: ^4.1.0
   drizzle-kit: ^0.31.11
   drizzle-orm: ^0.45.4
   eslint: ^9.39.1

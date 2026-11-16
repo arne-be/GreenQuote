@@ -5,7 +5,7 @@ WORKDIR /app
 
 FROM base AS prune
 COPY . .
-RUN pnpm dlx turbo@2.11.10 prune @greenquote/db --docker
+RUN pnpm dlx turbo@2.11.10 prune @greenquote/seed --docker
 
 FROM base AS install
 COPY --from=prune /app/out/json/ .
@@ -16,6 +16,6 @@ FROM node:22-alpine
 WORKDIR /app
 COPY --from=install --chown=node:node /app .
 USER node
-WORKDIR /app/packages/db
-# npm ships with the node image and runs the package's own scripts.
-CMD ["sh", "-c", "npm run db:migrate && npm run db:seed"]
+WORKDIR /app/packages
+# npm ships with the node image and runs each package's own scripts.
+CMD ["sh", "-c", "npm --prefix db run db:migrate && npm --prefix seed run db:seed"]

@@ -11,11 +11,9 @@
     "types": "tsc --noEmit",
     "test": "vitest run",
     "migration:generate": "drizzle-kit generate",
-    "db:migrate": "tsx --env-file-if-exists=../../.env src/migrate.ts",
-    "db:seed": "tsx --env-file-if-exists=../../.env src/seed.ts"
+    "db:migrate": "tsx --env-file-if-exists=../../.env src/migrate.ts"
   },
   "dependencies": {
-    "@node-rs/argon2": "catalog:",
     "drizzle-orm": "catalog:",
     "postgres": "catalog:",
     "tsx": "catalog:",

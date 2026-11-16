@@ -42,8 +42,10 @@ is in `.claude/skills/ask-matt/SKILL.md`.
   mapping. All business logic lives in `@greenquote/domain`.
 - **packages/domain**: framework-free business logic: pure calculations,
   services, Zod schemas shared by web and api, typed domain errors.
-- **packages/db**: Drizzle schema, migrations, seed. The TypeScript schema is the
+- **packages/db**: Drizzle schema and migrations. The TypeScript schema is the
   source of truth.
+- **packages/seed**: `pnpm db:seed`: the admin, plus demo users and quotes
+  (through domain services) when `SEED_DEMO_DATA=true`.
 - **packages/config**: shared ESLint and tsconfig presets.
 - **docs/adr/**: decisions that are hard to reverse. **GLOSSARY.md**: every
   domain word and what it means; read it before naming anything.

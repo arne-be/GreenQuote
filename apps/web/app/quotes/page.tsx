@@ -9,7 +9,9 @@ import { listQuotes } from "@/lib/api";
 
 export default async function QuotesPage({
   searchParams,
-}: PageProps<"/quotes">) {
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
   const { offset } = await searchParams;
   const parsed = quoteListQuerySchema.safeParse({ offset });
   if (!parsed.success) notFound();

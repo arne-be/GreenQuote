@@ -10,7 +10,9 @@ import { getCurrentUser, listQuotes } from "@/lib/api";
 // UX only: the API scopes the list by role, so a non-admin here would still see only their own quotes.
 export default async function AdminQuotesPage({
   searchParams,
-}: PageProps<"/admin/quotes">) {
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
   const cookie = (await cookies()).toString();
   const user = await getCurrentUser(cookie);
   if (user?.role !== "admin") redirect("/quotes");
